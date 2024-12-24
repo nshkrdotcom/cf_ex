@@ -6,8 +6,8 @@ defmodule CfCalls.WhipWhep.Router do
 
   alias CfCalls.WhipWhep.Handler
 
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   # WHIP endpoints
   options "/ingest/:live_id" do

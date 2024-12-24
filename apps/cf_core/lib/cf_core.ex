@@ -10,28 +10,32 @@ defmodule CfCore do
     alias Jason
 
     @spec request(String.t(), String.t(), list({String.t(), String.t()}), map()) ::
-      {:ok, map()} | {:error, String.t()}
+            {:ok, map()} | {:error, String.t()}
     def request(method, url, headers, body \\ %{}) do
       with {:ok, response} <-
-        HttpPoison.request(
-          method,
-          url,
-          headers,
-          Jason.encode!(body),
-          %{}
-        )
-      do
+             HttpPoison.request(
+               method,
+               url,
+               headers,
+               Jason.encode!(body),
+               %{}
+             ) do
         case response.status_code do
           200..299 ->
             case Jason.decode(response.body) do
               {:ok, json} ->
-                  {:ok, json}
+                {:ok, json}
+
               {:error, reason} ->
-                  Logger.error("JSON Decoding error: #{reason} for response:\n #{response.body}")
-                  {:error, "JSON Decoding Error"}
+                Logger.error("JSON Decoding error: #{reason} for response:\n #{response.body}")
+                {:error, "JSON Decoding Error"}
             end
+
           _ ->
-            Logger.error("Http request to #{url} failed with status: #{response.status_code} and body: #{response.body}")
+            Logger.error(
+              "Http request to #{url} failed with status: #{response.status_code} and body: #{response.body}"
+            )
+
             {:error, "Http Request failed"}
         end
       end
@@ -48,8 +52,8 @@ defmodule CfCore do
     """
     @spec generate_sdp(String.t(), keyword) :: String.t()
     def generate_sdp(sdp, opts \\ []) do
-        sdp
-        |> String.replace("useinbandfec=1", "usedtx=1;useinbandfec=1")
+      sdp
+      |> String.replace("useinbandfec=1", "usedtx=1;useinbandfec=1")
     end
   end
 end

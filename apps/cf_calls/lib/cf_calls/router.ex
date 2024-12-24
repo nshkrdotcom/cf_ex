@@ -8,8 +8,8 @@ defmodule CfCalls.Router do
   alias CfCalls.SFU
   alias CfCalls.TURN
 
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   # Session endpoints
   post "/sessions/new" do
@@ -45,6 +45,7 @@ defmodule CfCalls.Router do
   put "/apps/:app_id" do
     forward(conn, SFU, :edit_app, app_id: conn.params["app_id"])
   end
+
   get "/apps" do
     forward(conn, SFU, :list_apps)
   end
@@ -77,7 +78,7 @@ defmodule CfCalls.Router do
 
   defp forward(conn, module, function, params \\ []) do
     with {:ok, body, conn} <- read_body(conn),
-    {:ok, response} <- apply(module, function, [body |> Map.merge(params), conn.req_headers]) do
+         {:ok, response} <- apply(module, function, [body |> Map.merge(params), conn.req_headers]) do
       conn
       |> send_resp(200, Jason.encode!(response))
     else

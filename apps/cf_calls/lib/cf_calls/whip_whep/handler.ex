@@ -7,9 +7,9 @@ defmodule CfCalls.WhipWhep.Handler do
   alias CfCore.API.Calls
 
   @type session_description :: %{
-    sdp: String.t(),
-    type: String.t()
-  }
+          sdp: String.t(),
+          type: String.t()
+        }
 
   @doc """
   Handles WHIP (ingestion) requests.
@@ -45,7 +45,10 @@ defmodule CfCalls.WhipWhep.Handler do
     |> put_resp_header("access-control-allow-headers", "content-type,authorization,if-match")
     |> put_resp_header("access-control-allow-methods", "PATCH,POST,PUT,DELETE,OPTIONS")
     |> put_resp_header("access-control-allow-origin", "*")
-    |> put_resp_header("access-control-expose-headers", "x-thunderclap,location,link,accept-post,accept-patch,etag")
+    |> put_resp_header(
+      "access-control-expose-headers",
+      "x-thunderclap,location,link,accept-post,accept-patch,etag"
+    )
     |> put_resp_header("link", "<stun:stun.cloudflare.com:3478>; rel=\"ice-server\"")
     |> send_resp(204, "")
   end
@@ -54,14 +57,14 @@ defmodule CfCalls.WhipWhep.Handler do
     with {:ok, body, conn} <- read_body(conn),
          {:ok, %{"session_id" => session_id}} <- Calls.create_session(),
          {:ok, tracks_result} <- create_tracks(session_id, body) do
-
-      tracks = Enum.map(tracks_result["tracks"], fn track ->
-        %{
-          location: "remote",
-          session_id: session_id,
-          track_name: track["track_name"]
-        }
-      end)
+      tracks =
+        Enum.map(tracks_result["tracks"], fn track ->
+          %{
+            location: "remote",
+            session_id: session_id,
+            track_name: track["track_name"]
+          }
+        end)
 
       :ok = Store.set_tracks(live_id, tracks)
 
@@ -84,7 +87,6 @@ defmodule CfCalls.WhipWhep.Handler do
          {:ok, tracks} <- Store.get_tracks(live_id),
          {:ok, %{"session_id" => session_id}} <- Calls.create_session(),
          {:ok, tracks_result} <- create_tracks(session_id, body, tracks) do
-
       conn
       |> put_resp_content_type("application/sdp")
       |> put_resp_header("protocol-version", "draft-ietf-wish-whep-00")
@@ -114,23 +116,24 @@ defmodule CfCalls.WhipWhep.Handler do
   end
 
   defp create_tracks(session_id, offer_sdp, existing_tracks \\ nil) do
-    body = if existing_tracks do
-      %{
-        tracks: existing_tracks,
-        session_description: %{
-          type: "offer",
-          sdp: offer_sdp
+    body =
+      if existing_tracks do
+        %{
+          tracks: existing_tracks,
+          session_description: %{
+            type: "offer",
+            sdp: offer_sdp
+          }
         }
-      }
-    else
-      %{
-        session_description: %{
-          type: "offer",
-          sdp: offer_sdp
-        },
-        auto_discover: true
-      }
-    end
+      else
+        %{
+          session_description: %{
+            type: "offer",
+            sdp: offer_sdp
+          },
+          auto_discover: true
+        }
+      end
 
     Calls.create_tracks(session_id, body)
   end

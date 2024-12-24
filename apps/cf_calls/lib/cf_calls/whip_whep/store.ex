@@ -2,14 +2,14 @@ defmodule CfCalls.WhipWhep.Store do
   @moduledoc """
   Manages track storage for WHIP/WHEP sessions using Cloudflare Durable Objects.
   """
-    alias CfDurable.Object
+  alias CfDurable.Object
   alias CfDurable.Storage
 
   @type track_locator :: %{
-    location: String.t(),
-    session_id: String.t(),
-    track_name: String.t()
-  }
+          location: String.t(),
+          session_id: String.t(),
+          track_name: String.t()
+        }
 
   @doc """
   Sets tracks for a specific live stream ID.

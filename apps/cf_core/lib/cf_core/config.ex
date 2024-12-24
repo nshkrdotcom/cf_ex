@@ -58,13 +58,13 @@ defmodule CfCore.Config do
   """
   @spec turn_key_endpoint(String.t()) :: String.t()
   def turn_key_endpoint(path) do
-      "#{calls_base_url()}/turn_keys#{path}"
+    "#{calls_base_url()}/turn_keys#{path}"
   end
 
   @doc """
   Constructs a full API endpoint URL for apps.
   """
-    @spec app_endpoint(String.t()) :: String.t()
+  @spec app_endpoint(String.t()) :: String.t()
   def app_endpoint(path) do
     "#{calls_base_url()}/apps#{path}"
   end
@@ -84,9 +84,8 @@ defmodule CfCore.Config do
   @doc """
   Returns standard headers for API requests.
   """
-   @spec headers(t()) :: list({String.t(), String.t()})
+  @spec headers(t()) :: list({String.t(), String.t()})
   def headers(%__MODULE__{app_token: app_token}) do
-     [{'Authorization', "Bearer #{app_token}"}, {'Content-Type', 'application/json'}]
+    [{~c"Authorization", "Bearer #{app_token}"}, {~c"Content-Type", ~c"application/json"}]
   end
-
 end

@@ -6,14 +6,14 @@ defmodule CfCore.API.Calls do
   alias CfCore.API.Client
 
   @type session_description :: %{
-    type: String.t(),
-    sdp: String.t()
-  }
+          type: String.t(),
+          sdp: String.t()
+        }
 
   @type track :: %{
-    track_name: String.t(),
-    mid: String.t()
-  }
+          track_name: String.t(),
+          mid: String.t()
+        }
 
   @doc """
   Creates a new session.

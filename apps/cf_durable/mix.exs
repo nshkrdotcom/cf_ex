@@ -6,11 +6,11 @@ defmodule CfDurable.MixProject do
       app: :cf_durable,
       version: "0.1.0",
       elixir: "~> 1.18",
-      build_embedded: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       source_url: "https://github.com/nshkrdotcom/cf_ex/apps/cf_durable"
-      #,homepage_url: "TODO:"
+      # ,homepage_url: "TODO:"
     ]
   end
 
@@ -33,9 +33,8 @@ defmodule CfDurable.MixProject do
                 license* CHANGELOG* changelog* src),
       licenses: ["MIT"],
       maintainers: ["nshkrdotcom"],
-      #description: "Provides comprehensive stateful integration with Cloudflare Durable Objects.",
+      # description: "Provides comprehensive stateful integration with Cloudflare Durable Objects.",
       links: %{"GitHub" => "https://github.com/nshkrdotcom/cf_ex/apps/cf_durable"}
     ]
   end
-
 end

@@ -9,14 +9,19 @@ defmodule CfDurable do
     require Logger
 
     @spec get_namespace(String.t()) ::
-      {:ok, any} | {:error, String.t()}
+            {:ok, any} | {:error, String.t()}
     def get_namespace(name) do
       case :cloudflare.binding_get(name) do
         {:ok, namespace} when is_map(namespace) ->
           {:ok, namespace}
+
         {:error, reason} ->
-          Logger.error("Failed to resolve Durable Object Namespace with name: #{name} - #{reason}")
+          Logger.error(
+            "Failed to resolve Durable Object Namespace with name: #{name} - #{reason}"
+          )
+
           {:error, "Durable Object Namespace with name: #{name} not found: #{reason}"}
+
         _ ->
           {:error, "Unexpected response"}
       end
@@ -50,6 +55,7 @@ defmodule CfDurable do
         {:error, reason} -> {:error, reason}
       end
     end
+
     @spec delete(String.t()) :: :ok | {:error, String.t()}
     def delete(key) do
       case :cloudflare.durable_object_storage_delete(key) do

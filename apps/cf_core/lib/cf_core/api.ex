@@ -30,7 +30,10 @@ defmodule CfCore.API do
           end
 
         _ ->
-          Logger.error("Http request to #{url} failed with status: #{response.status_code} and body: #{response.body}")
+          Logger.error(
+            "Http request to #{url} failed with status: #{response.status_code} and body: #{response.body}"
+          )
+
           {:error, "Http Request failed"}
       end
     end
@@ -39,5 +42,4 @@ defmodule CfCore.API do
 
   defp handle_response({:ok, result}), do: {:ok, result}
   defp handle_response({:error, reason}), do: {:error, reason}
-
 end

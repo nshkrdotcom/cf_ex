@@ -8,7 +8,8 @@ defmodule CfEx.MixProject do
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      test_paths: ["test/support", "apps/*/test"],  # Include support files
+      # Include support files
+      test_paths: ["test/support", "apps/*/test"],
       preferred_cli_env: [
         test: :test,
         "test.coverage": :test
