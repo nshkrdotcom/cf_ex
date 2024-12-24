@@ -12,7 +12,8 @@ defmodule CfEx.MixProject do
       preferred_cli_env: [
         test: :test,
         "test.coverage": :test
-      ]
+      ],
+      extra_applications: [:logger, :observer]
     ]
   end
 
