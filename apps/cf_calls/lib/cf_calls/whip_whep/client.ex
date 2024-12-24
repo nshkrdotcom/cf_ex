@@ -1,69 +1,115 @@
-defmodule CfCalls.Track do
+defmodule CfCalls.WhipWhep.Client do
   @moduledoc """
-  Track operations for Cloudflare Calls API.
+  Client implementation for WHIP (WebRTC-HTTP Ingestion Protocol) and
+  WHEP (WebRTC-HTTP Egress Protocol).
 
-  Tracks are the core concept in Cloudflare Calls, representing audio, video, or data streams
-  that can be published and subscribed to across sessions.
+  This module provides a clean interface for publishing (WHIP) and consuming (WHEP)
+  WebRTC streams using Cloudflare Calls.
   """
 
-  alias CfCore.API
-  alias CfCore.Config
+  alias CfCalls.Session
+  alias CfCalls.Track
   alias CfCalls.Types
+  alias CfCalls.WhipWhep.Types, as: WhipWhepTypes
+  alias CfCore.Config
+
+  @type error :: {:error, String.t() | map()}
 
   @doc """
-  Creates new tracks in a session.
+  Handles WHIP ingestion by creating a new session and tracks.
 
-  ## Options
-    * `:auto_discover` - When true, automatically discovers tracks from SDP (default: true)
-    * `:tracks` - List of track locators to add
-    * `:session_description` - Optional SDP for WebRTC negotiation
+  ## Parameters
+    * `config` - Cloudflare configuration
+    * `live_id` - Unique identifier for the live stream
+    * `offer_sdp` - SDP offer from the client
+    * `opts` - Optional parameters for track creation
+
+  Returns `{:ok, whip_response()}` on success.
   """
-  @spec create(Config.t(), Types.session_id(), keyword()) ::
-    {:ok, %{tracks: [Types.track_response()], session_description: Types.session_description()}} |
-    {:error, term()}
-  def create(config, session_id, opts \\ []) do
-    body = %{}
-    |> maybe_add_auto_discover(Keyword.get(opts, :auto_discover, true))
-    |> maybe_add_tracks(Keyword.get(opts, :tracks))
-    |> maybe_add_session_description(Keyword.get(opts, :session_description))
+  @spec whip_ingest(Config.t(), String.t(), Types.sdp(), keyword()) ::
+    {:ok, WhipWhepTypes.whip_response()} | error()
+  def whip_ingest(config, live_id, offer_sdp, opts \\ []) do
+    with {:ok, session_id} <- Session.new(config),
+         {:ok, track_response} <- Track.create(config, session_id,
+           session_description: %{type: "offer", sdp: offer_sdp},
+           auto_discover: true
+         ) do
+      location = "/ingest/#{live_id}/#{session_id}"
 
-    API.request("POST",
-      "#{config.base_url}/#{config.app_id}/sessions/#{session_id}/tracks/new",
-      [
-        {"Authorization", "Bearer #{config.app_token}"},
-        {"Content-Type", "application/json"}
-      ],
-      body
-    )
+      {:ok, %{
+        sdp: track_response.sessionDescription.sdp,
+        session_id: session_id,
+        location: location,
+        etag: ~s("#{session_id}")
+      }}
+    end
   end
 
   @doc """
-  Closes specific tracks in a session.
+  Handles WHEP playback by creating a new session and subscribing to tracks.
+
+  ## Parameters
+    * `config` - Cloudflare configuration
+    * `live_id` - Unique identifier for the live stream
+    * `offer_sdp` - SDP offer from the client (optional for WHEP)
+    * `tracks` - List of tracks to subscribe to
+    * `opts` - Optional parameters for track creation
+
+  Returns `{:ok, whep_response()}` on success.
   """
-  @spec close(Config.t(), Types.session_id(), [Types.track_name()]) ::
-    {:ok, map()} | {:error, term()}
-  def close(config, session_id, track_names) do
-    API.request("PUT",
-      "#{config.base_url}/#{config.app_id}/sessions/#{session_id}/tracks/close",
-      [
-        {"Authorization", "Bearer #{config.app_token}"},
-        {"Content-Type", "application/json"}
-      ],
-      %{trackNames: track_names}
+  @spec whep_play(Config.t(), String.t(), Types.sdp() | nil, [Types.track_config()], keyword()) ::
+    {:ok, WhipWhepTypes.whep_response()} | error()
+  def whep_play(config, live_id, offer_sdp \\ nil, tracks, opts \\ []) do
+    with {:ok, session_id} <- Session.new(config),
+         {:ok, track_response} <- create_whep_tracks(config, session_id, offer_sdp, tracks) do
+      location = "/play/#{live_id}/#{session_id}"
+
+      {:ok, %{
+        sdp: track_response.sessionDescription.sdp,
+        session_id: session_id,
+        location: location,
+        etag: ~s("#{session_id}")
+      }}
+    end
+  end
+
+  @doc """
+  Handles WHEP renegotiation with a new SDP answer.
+  """
+  @spec whep_renegotiate(Config.t(), Types.session_id(), Types.sdp()) ::
+    :ok | error()
+  def whep_renegotiate(config, session_id, answer_sdp) do
+    case Session.renegotiate(config, session_id, %{
+      type: "answer",
+      sdp: answer_sdp
+    }) do
+      {:ok, _} -> :ok
+      error -> error
+    end
+  end
+
+  @doc """
+  Handles WHIP/WHEP session termination.
+  """
+  @spec terminate(Config.t(), Types.session_id(), [Types.track_name()]) ::
+    :ok | error()
+  def terminate(config, session_id, track_names) do
+    case Track.close(config, session_id, track_names) do
+      {:ok, _} -> :ok
+      error -> error
+    end
+  end
+
+  # Private Helpers
+
+  defp create_whep_tracks(config, session_id, nil, tracks) do
+    Track.create(config, session_id, tracks: tracks)
+  end
+
+  defp create_whep_tracks(config, session_id, offer_sdp, tracks) do
+    Track.create(config, session_id,
+      session_description: %{type: "offer", sdp: offer_sdp},
+      tracks: tracks
     )
-  end
-
-  # Private helpers
-
-  defp maybe_add_auto_discover(body, auto_discover) do
-    Map.put(body, :autoDiscover, auto_discover)
-  end
-
-  defp maybe_add_tracks(body, nil), do: body
-  defp maybe_add_tracks(body, tracks), do: Map.put(body, :tracks, tracks)
-
-  defp maybe_add_session_description(body, nil), do: body
-  defp maybe_add_session_description(body, session_description) do
-    Map.put(body, :sessionDescription, session_description)
   end
 end
