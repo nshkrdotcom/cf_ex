@@ -28,3 +28,14 @@ STUN over UDP
 TURN over UDP
 TURN over TCP
 TURN over TLS
+
+# TURN Key Management
+
+Note: TURN key management is part of Cloudflare's API but handled separately from the main Calls API:
+- Create TURN key: POST /accounts/{account_id}/calls/turn_keys
+- Delete TURN key: DELETE /accounts/{account_id}/calls/turn_keys/{key_id}
+- Get TURN key: GET /accounts/{account_id}/calls/turn_keys/{key_id}
+- List TURN keys: GET /accounts/{account_id}/calls/turn_keys
+- Edit TURN key: PUT /accounts/{account_id}/calls/turn_keys/{key_id}
+
+These endpoints are account-level operations, not app-level like the main Calls API.
