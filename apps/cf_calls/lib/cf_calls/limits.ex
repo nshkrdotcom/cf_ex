@@ -1,33 +1,15 @@
 defmodule CfCalls.Limits do
   @moduledoc """
-  Cloudflare Calls API limits and quotas.
+  Cloudflare Calls API limits.
+  These are enforced by Cloudflare, documented here for reference.
   """
 
-  # API Rate Limits
-  @api_calls_per_second 50  # per session
-  @tracks_per_call 64       # max tracks per API call
-  
-  # Timeouts
-  @track_timeout 30         # seconds before track garbage collection
-  @peer_conn_timeout 5      # seconds to wait for PeerConnection state
-
-  # Free Tier
-  @free_egress_gb 1000     # GB/month from Cloudflare to client
-
-  def api_calls_per_second, do: @api_calls_per_second
-  def tracks_per_call, do: @tracks_per_call
-  def track_timeout, do: @track_timeout
-  def peer_conn_timeout, do: @peer_conn_timeout
-  def free_egress_gb, do: @free_egress_gb
+  @tracks_per_call 64  # max tracks per API call
 
   @doc """
-  Validates track count against API limit.
+  Pure function to validate track count.
   """
   def validate_track_count(count) when is_integer(count) do
-    if count <= @tracks_per_call do
-      :ok
-    else
-      {:error, "Exceeds maximum tracks per call (#{@tracks_per_call})"}
-    end
+    if count <= @tracks_per_call, do: :ok, else: {:error, "Maximum #{@tracks_per_call} tracks per call"}
   end
 end

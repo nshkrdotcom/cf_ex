@@ -3,18 +3,22 @@ defmodule CfCalls.Client do
   Client for Cloudflare Calls API endpoints.
   Handles server-side API calls only. WebRTC/SDP/ICE are handled client-side.
 
+  Rate Limiting:
+  This library is stateless and does not implement rate limiting.
+  See https://developers.cloudflare.com/calls/limits/ for Cloudflare's limits.
+  Rate limiting should be implemented at the application level.
+
   Usage:
     config = CfCalls.Config.new("app_id", "token")
     {:ok, session} = CfCalls.Client.new_session(config)
   """
 
-  alias CfCalls.{Types, Limits}
+  alias CfCalls.Types
 
   @base_url "https://rtc.live.cloudflare.com/v1/apps"
 
   @doc """
   Creates a new session.
-  Returns session ID and details.
   """
   @spec new_session(map()) :: {:ok, Types.session_response()} | {:error, Types.error_response()}
   def new_session(config) do
@@ -23,19 +27,27 @@ defmodule CfCalls.Client do
 
   @doc """
   Creates new tracks in a session.
-  Requires session_id and SDP offer in body.
-  Limited to #{Limits.tracks_per_call()} tracks per call.
   """
   @spec create_tracks(map(), String.t(), map()) :: {:ok, Types.tracks_response()} | {:error, Types.error_response()}
   def create_tracks(config, session_id, %{tracks: tracks} = body) do
-    with :ok <- Limits.validate_track_count(length(tracks)) do
-      request(:post, "#{config.app_id}/sessions/#{session_id}/tracks/new", config, body)
-    end
+    request(:post, "#{config.app_id}/sessions/#{session_id}/tracks/new", config, body)
+  end
+
+  @doc """
+  Creates new DataChannels in a session.
+  For local channels, only datachannel_name is required.
+  For remote channels, both datachannel_name and session_id are required.
+  """
+  @spec create_datachannels(map(), String.t(), [Types.datachannel_config()]) :: 
+    {:ok, Types.datachannels_response()} | {:error, Types.error_response()}
+  def create_datachannels(config, session_id, channels) do
+    request(:post, "#{config.app_id}/sessions/#{session_id}/datachannels/new", config, %{
+      dataChannels: channels
+    })
   end
 
   @doc """
   Renegotiates a session.
-  Used when adding/removing tracks.
   """
   @spec renegotiate_session(map(), String.t(), map()) :: {:ok, Types.session_response()} | {:error, Types.error_response()}
   def renegotiate_session(config, session_id, body) do
@@ -44,7 +56,6 @@ defmodule CfCalls.Client do
 
   @doc """
   Closes tracks in a session.
-  Note: Tracks auto-close after #{Limits.track_timeout()} seconds of inactivity.
   """
   @spec close_tracks(map(), String.t(), map()) :: {:ok, Types.session_response()} | {:error, Types.error_response()}
   def close_tracks(config, session_id, body) do
