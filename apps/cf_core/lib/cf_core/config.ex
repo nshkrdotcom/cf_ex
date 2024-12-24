@@ -88,4 +88,29 @@ defmodule CfCore.Config do
   def headers(%__MODULE__{app_token: app_token}) do
     [{~c"Authorization", "Bearer #{app_token}"}, {~c"Content-Type", ~c"application/json"}]
   end
+
+
+
+
+
+
+
+
+  ### for turn
+  @type t :: %__MODULE__{
+    base_url: String.t(),
+    app_id: String.t(),
+    app_token: String.t(),
+    turn_key_id: String.t(),
+    turn_api_token: String.t()
+  }
+
+  defstruct [
+    :base_url,
+    :app_id,
+    :app_token,
+    :turn_key_id,
+    :turn_api_token
+  ]
+
 end
