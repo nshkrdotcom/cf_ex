@@ -1,6 +1,6 @@
 # CfCalls
 
-**TODO: Add description**
+Elixir client for Cloudflare Calls API. Handles server-side API calls for managing WebRTC sessions, tracks, and data channels.
 
 ## Installation
 
@@ -22,27 +22,75 @@ be found at <https://hexdocs.pm/cf_calls>.
 
 ## Usage
 
-# Configuration
+### Configuration
+
+```elixir
 config = CfCalls.Config.new(
   System.get_env("CALLS_API"),
   System.get_env("CALLS_APP_ID"),
   System.get_env("CALLS_APP_SECRET")
 )
+```
 
-# Create a room with all features
-{:ok, room} = CfCalls.Room.create_room(config)
+### Sessions and Tracks
 
-# Join with WebRTC
-{:ok, connection} = CfCalls.Room.join_room(room, sdp)
+```elixir
+# Create a new session
+{:ok, session} = CfCalls.Client.new_session(config)
 
-# Start broadcasting
-{:ok, broadcast} = CfCalls.Room.start_broadcast(room, sdp)
+# Add tracks to session
+{:ok, tracks} = CfCalls.Client.create_tracks(config, session.session_id, %{
+  tracks: [
+    %{media_type: "audio"},
+    %{media_type: "video"}
+  ]
+})
 
-# Send data channel message
-:ok = CfCalls.Room.send_message(room, "Hello!")
+# Close tracks
+{:ok, _} = CfCalls.Client.close_tracks(config, session.session_id, %{
+  tracks: [track_id1, track_id2]
+})
+```
+
+### DataChannels
+
+DataChannels enable real-time data transmission between sessions in a pub/sub model:
+
+```elixir
+# Create a publisher channel
+{:ok, pub} = CfCalls.DataChannel.create_publisher(config, session_id, "my-channel")
+
+# Create subscribers that connect to the publisher
+{:ok, sub1} = CfCalls.DataChannel.create_subscriber(config, session2_id, "my-channel", pub.session_id)
+{:ok, sub2} = CfCalls.DataChannel.create_subscriber(config, session3_id, "my-channel", pub.session_id)
+```
+
+The actual data transmission happens client-side via WebRTC DataChannels. Example client-side code:
+
+```javascript
+// Publisher (after getting channel ID from server)
+const channel = peerConnection.createDataChannel("my-channel", {
+  negotiated: true,
+  id: channelResponse.datachannels[0].id
+});
+channel.send("Hello subscribers!");
+
+// Subscribers
+channel.addEventListener('message', (evt) => {
+  console.log("Received:", evt.data);
+});
+```
+
+### Rate Limiting
+
+This library is stateless and does not implement rate limiting. See [Cloudflare's documentation](https://developers.cloudflare.com/calls/limits/) for limits and implement rate limiting at the application level.
+
+## Documentation
+
+The docs can be found at [https://hexdocs.pm/cf_calls](https://hexdocs.pm/cf_calls).
 
 
-**1.  `cf_calls` Architecture:**
+## Architecture
 
 ```mermaid
 graph LR
@@ -71,7 +119,7 @@ graph LR
     class cf_core,API core
 ```
 
-**Discussion:**
+## Discussion
 
 `cf_calls` is a low-level library specifically for Cloudflare Calls. It's structured around three core components: Session Management, TURN Server management, and SFU parameter controls.
 
@@ -85,3 +133,21 @@ The  **`SFU Module`**   will provide utilities for manipulating Cloudflare SFU s
  The **`SDP Module`** is a stateless utility that contains all functions related to SDP manipulation (currently just Opus DTX).
 
 The primary design consideration here is to separate the low-level details about making http requests to a module (`cf_core`) to avoid having to reimplement the same logic in each of the modules here, while still being able to make granular changes at the Cloudflare calls level. Note that this module is stateless and does not have a supervision tree associated with it because it doesn't handle a lifecycle of a long running process.
+
+
+## TODO:
+
+Next steps for completing cf_calls:
+
+Missing API Features:
+Review Cloudflare docs for any missing endpoints
+Ensure all error cases are handled properly
+Add proper validation for request parameters
+Testing:
+Add ExUnit tests for all modules
+Add doctests for example usage
+Add mocks for API responses
+Documentation:
+Add module documentation
+Add typespecs for all functions
+Add examples for all functions
