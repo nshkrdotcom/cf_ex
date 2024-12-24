@@ -8,7 +8,7 @@ defmodule CfCalls.Client do
     {:ok, session} = CfCalls.Client.new_session(config)
   """
 
-  alias CfCalls.Types
+  alias CfCalls.{Types, Limits}
 
   @base_url "https://rtc.live.cloudflare.com/v1/apps"
 
@@ -24,10 +24,13 @@ defmodule CfCalls.Client do
   @doc """
   Creates new tracks in a session.
   Requires session_id and SDP offer in body.
+  Limited to #{Limits.tracks_per_call()} tracks per call.
   """
   @spec create_tracks(map(), String.t(), map()) :: {:ok, Types.tracks_response()} | {:error, Types.error_response()}
-  def create_tracks(config, session_id, body) do
-    request(:post, "#{config.app_id}/sessions/#{session_id}/tracks/new", config, body)
+  def create_tracks(config, session_id, %{tracks: tracks} = body) do
+    with :ok <- Limits.validate_track_count(length(tracks)) do
+      request(:post, "#{config.app_id}/sessions/#{session_id}/tracks/new", config, body)
+    end
   end
 
   @doc """
@@ -41,6 +44,7 @@ defmodule CfCalls.Client do
 
   @doc """
   Closes tracks in a session.
+  Note: Tracks auto-close after #{Limits.track_timeout()} seconds of inactivity.
   """
   @spec close_tracks(map(), String.t(), map()) :: {:ok, Types.session_response()} | {:error, Types.error_response()}
   def close_tracks(config, session_id, body) do
