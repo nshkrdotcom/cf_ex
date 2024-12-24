@@ -3,8 +3,8 @@ defmodule CfCalls.WhipWhep.Store do
   Manages track storage for WHIP/WHEP sessions using Cloudflare Durable Objects.
   """
 
-  alias CfCalls.Object
-  alias CfCalls.Storage
+  alias CfDurable.Object
+  alias CfDurable.Storage
 
   @type track_locator :: %{
     location: String.t(),
