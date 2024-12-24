@@ -121,3 +121,46 @@ You've implemented property-based tests using StreamData, which is great for ens
 - **Publishing:** Once you're confident in your libraries, consider publishing them to Hex.pm for wider use or to make dependency management easier for other projects.
 
 This project seems like a solid foundation for integrating BEAM with Cloudflare's services. Keep up the good work, and consider these points as you move forward!
+
+# Phoenix Integration
+
+# In your Phoenix app:
+defmodule MyApp.CallsManager do
+  use GenServer
+  alias Phoenix.PubSub
+  
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+  
+  def init(opts) do
+    # Initialize ETS for fast session lookups
+    :ets.new(:calls_sessions, [:set, :public, :named_table])
+    {:ok, %{}}
+  end
+  
+  def handle_call({:create_session, params}, _from, state) do
+    case CfCalls.Session.new(config()) do
+      {:ok, session_id} ->
+        :ets.insert(:calls_sessions, {session_id, params})
+        PubSub.broadcast(MyApp.PubSub, "calls", {:session_created, session_id})
+        {:reply, {:ok, session_id}, state}
+      error ->
+        {:reply, error, state}
+    end
+  end
+end
+
+# Testing Strategy
+
+Unit tests for stateless functions
+Integration tests with mock Cloudflare API
+Property-based testing for SDP handling
+Doctests for usage examples
+
+Would you like me to:
+
+Implement the DataChannel support?
+Add better type specifications?
+Create example Phoenix integration patterns?
+Something else from the recommendations?
