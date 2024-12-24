@@ -2,7 +2,9 @@ defmodule CfDurable.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc "Application for CfDurable."
-
+  @doc """
+  Application for CfDurable.
+  """
   use Application
 
   @impl true

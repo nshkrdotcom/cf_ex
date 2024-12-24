@@ -1,5 +1,8 @@
 defmodule CfDurable do
   @moduledoc "Documentation for CfDurable."
+  @doc """
+  Documentation for CfDurable.
+  """
 
   # Your code here
   defmodule Room do

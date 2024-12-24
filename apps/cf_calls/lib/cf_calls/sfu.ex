@@ -2,6 +2,9 @@ defmodule CfCalls.SFU do
   @moduledoc """
   Manages Application interactions.
   """
+  @doc """
+  Manages Application interactions.
+  """
   alias CfCore.API
   alias CfCore.Config
   require Logger

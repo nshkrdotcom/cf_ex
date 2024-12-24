@@ -2,7 +2,9 @@ defmodule CfCalls.WhipWhep.Store do
   @moduledoc """
   Manages track storage for WHIP/WHEP sessions using Cloudflare Durable Objects.
   """
-
+  @doc """
+  Manages track storage for WHIP/WHEP sessions using Cloudflare Durable Objects.
+  """
   alias CfDurable.Object
   alias CfDurable.Storage
 

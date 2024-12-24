@@ -2,6 +2,9 @@ defmodule CfCalls.TURN do
   @moduledoc """
   Manages TURN Key Interactions.
   """
+  @doc """
+  Manages TURN Key Interactions.
+  """
   alias CfCore.API
   alias CfCore.Config
   require Logger

@@ -2,6 +2,9 @@ defmodule CfCalls.Session do
   @moduledoc """
   Handles the creation and negotiation of Cloudflare Call Sessions
   """
+  @doc """
+  Handles the creation and negotiation of Cloudflare Call Sessions.
+  """
   alias CfCore.API
   alias CfCore.Config
   require Logger

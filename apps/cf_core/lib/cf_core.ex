@@ -1,6 +1,8 @@
 defmodule CfCore do
   @moduledoc "Documentation for CfCore."
-
+  @doc """
+  Handles all HTTP requests to Cloudflare API.
+  """
   defmodule API do
     @moduledoc """
       Handles all HTTP requests to Cloudflare API.

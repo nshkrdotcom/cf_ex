@@ -2,6 +2,9 @@ defmodule CfCalls.Router do
   @moduledoc """
     Router for CfCalls API endpoints.
     """
+  @doc """
+  Router for CfCalls API endpoints.
+  """
   use Plug.Router
 
   alias CfCalls.Session

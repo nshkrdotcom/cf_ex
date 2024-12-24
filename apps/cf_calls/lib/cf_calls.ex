@@ -1,4 +1,11 @@
 defmodule CfCalls do
+  @doc """
+  Comprehensive Cloudflare Calls API client that combines:
+  - Basic session management (echo example)
+  - WebRTC relay (openai example)
+  - WHIP/WHEP protocols (whip-whep example)
+  - Data channels (echo-datachannels example)
+  """
   @moduledoc """
   Comprehensive Cloudflare Calls API client that combines:
   - Basic session management (echo example)
@@ -213,13 +220,6 @@ defmodule CfCalls do
     end
   end
 end
-
-
-
-
-
-
-
 
 defmodule CfCalls.Calls do
   @moduledoc """

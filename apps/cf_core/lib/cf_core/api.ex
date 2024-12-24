@@ -2,7 +2,9 @@ defmodule CfCore.API do
   @moduledoc """
   Handles all HTTP requests to Cloudflare API.
   """
-
+  @doc """
+  Handles all HTTP requests to Cloudflare API.
+  """
   require Logger
   alias Jason
   # alias ExCloudflareCore.Config

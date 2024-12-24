@@ -2,7 +2,9 @@ defmodule CfCalls.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc "Application for CfCalls."
-
+  @doc """
+  Application for CfCalls.
+  """
   use Application
 
   @impl true

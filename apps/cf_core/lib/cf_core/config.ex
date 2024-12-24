@@ -1,7 +1,6 @@
 defmodule CfCore.Config do
 
-
-  @moduledoc """
+  @doc """
   Configuration management for Cloudflare API interactions.
   """
 
