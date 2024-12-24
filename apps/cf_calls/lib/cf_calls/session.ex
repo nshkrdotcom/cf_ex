@@ -1,7 +1,8 @@
 defmodule CfCalls.Session do
   @moduledoc """
-  Handles the creation and negotiation of Cloudflare Call Sessions
+  Sessions for tracks
   """
+
   alias CfCore.API
   alias CfCore.Config
   require Logger
@@ -12,31 +13,34 @@ defmodule CfCalls.Session do
 
   @spec new_session(map(), list(map())) ::
     {:ok, session} | {:error, String.t()}
-  def new_session(body, headers) do
-    API.request(:post, Config.session_endpoint("/new"), headers, body)
-      |> case do
-        {:ok, %{"sessionId" => session_id}} ->
-          {:ok, %{session_id: session_id}}
-        other ->
-          other
-      end
+  def new_session(config, opts \\ []) do
+    headers = Config.headers(config)
+    endpoint = Config.endpoint("/sessions/new") # Use Config to build URLs
+
+    with {:ok, response} <- API.request(:post, endpoint, headers, %{}), # Make the API call directly
+    {:ok, body} <- Jason.decode(response.body),
+    %{"sessionId" => session_id} <- body do
+      {:ok, %{session_id: session_id}}
+    end
   end
 
-  @spec new_tracks(map(), list(map()), keyword()) ::
-    {:ok, map()} | {:error, String.t()}
-  def new_tracks(body, headers, session_id: session_id) do
-    API.request(:post, Config.session_endpoint("/#{session_id}/tracks/new"), headers, body)
+  @spec new_tracks(String.t(), map()) :: {:ok, map()} | {:error, term()}
+  def new_tracks(session_id, params) do
+    headers = Config.auth_headers() # Or however your auth headers are managed
+    endpoint = Config.session_endpoint("/#{session_id}/tracks/new")
+    API.request(:post, endpoint, headers, params)
   end
 
-  @spec renegotiate(map(), list(map()), keyword()) ::
-    {:ok, map()} | {:error, String.t()}
-  def renegotiate(body, headers, session_id: session_id) do
-    API.request(:put, Config.session_endpoint("/#{session_id}/renegotiate"), headers, body)
+  @spec renegotiate(String.t(), map()) :: {:ok, map()} | {:error, term()}
+  def renegotiate(session_id, params) do
+    headers = Config.auth_headers() # Or however your auth headers are managed
+    endpoint = Config.session_endpoint("/#{session_id}/renegotiate")
+    API.request(:post, endpoint, headers, params)
   end
-
-  @spec close_track(map(), list(map()), keyword()) ::
-    {:ok, map()} | {:error, String.t()}
-  def close_track(body, headers, session_id: session_id) do
-    API.request(:put, Config.session_endpoint("/#{session_id}/tracks/close"), headers, body)
+  @spec close_track(String.t(), map()) :: {:ok, map()} | {:error, term()}
+  def close_track(session_id, params) do
+    headers = Config.auth_headers() # Or however your auth headers are managed
+    endpoint = Config.session_endpoint("/#{session_id}/tracks/close")
+    API.request(:post, endpoint, headers, params)
   end
 end
