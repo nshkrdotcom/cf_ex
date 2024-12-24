@@ -1,13 +1,12 @@
-defmodule CfCore.Router do
+defmodule CfCalls.Router do
   @moduledoc """
-  Router for Cloudflare Calls API endpoints.
-  """
-
+    Router for CfCalls API endpoints.
+    """
   use Plug.Router
 
-  alias CfCore.Session
-  alias CfCore.SFU
-  alias CfCore.TURN
+  alias CfCalls.Session
+  alias CfCalls.SFU
+  alias CfCalls.TURN
 
   plug :match
   plug :dispatch
@@ -46,7 +45,6 @@ defmodule CfCore.Router do
   put "/apps/:app_id" do
     forward(conn, SFU, :edit_app, app_id: conn.params["app_id"])
   end
-
   get "/apps" do
     forward(conn, SFU, :list_apps)
   end
@@ -79,12 +77,13 @@ defmodule CfCore.Router do
 
   defp forward(conn, module, function, params \\ []) do
     with {:ok, body, conn} <- read_body(conn),
-         {:ok, response} <- apply(module, function, [body |> Map.merge(params), conn.req_headers]) do
+        {:ok, response} <- apply(module, function, [body |> Map.merge(params), conn.req_headers]) do
       conn
       |> send_resp(200, Jason.encode!(response))
     else
       {:error, reason} ->
-        conn |> send_resp(500, "Internal server Error: #{reason}")
+        conn
+        |> send_resp(500, "Internal server Error: #{reason}")
     end
   end
 end

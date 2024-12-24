@@ -1,15 +1,15 @@
-defmodule ExCloudflareCalls.MixProject do
+defmodule CfCalls.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :ex_cloudflare_calls,
+      app: :cf_calls,
       version: "0.1.0",
       elixir: "~> 1.17",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      source_url: "https://github.com/nshkrdotcom/ex_cloudflare_calls"
+      source_url: "https://github.com/nshkrdotcom/cf_ex/apps/cf_calls"
       #,homepage_url: "TODO:"
     ]
   end
@@ -18,7 +18,7 @@ defmodule ExCloudflareCalls.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {ExCloudflareCalls.Application, []}
+      mod: {CfCalls.Application, []}
     ]
   end
 
@@ -43,10 +43,10 @@ defmodule ExCloudflareCalls.MixProject do
       name: "Cloudflare Calls",
       files: ~w(lib priv .formatter.exs mix.exs README* readme* LICENSE*
                 license* CHANGELOG* changelog* src),
-      licenses: ["Apache-2.0"],
+      licenses: ["MIT"],
       maintainers: ["nshkrdotcom"],
       #description: "Provides comprehensive stateful integration with Cloudflare Calls API.",
-      links: %{"GitHub" => "https://github.com/nshkrdotcom/ex_cloudflare_calls"}
+      links: %{"GitHub" => "https://github.com/nshkrdotcom/cf_ex/apps/cf_calls"}
     ]
   end
 

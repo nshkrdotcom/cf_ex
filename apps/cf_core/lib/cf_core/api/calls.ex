@@ -1,9 +1,9 @@
-defmodule ExCloudflareCore.API.Calls do
+defmodule CfCore.API.Calls do
   @moduledoc """
   API client for Cloudflare Calls service.
   """
 
-  alias ExCloudflareCore.API.Client
+  alias CfCore.API.Client
 
   @type session_description :: %{
     type: String.t(),

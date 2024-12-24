@@ -1,10 +1,10 @@
-defmodule ExCloudflareCalls.WhipWhep.Handler do
+defmodule CfCalls.WhipWhep.Handler do
   @moduledoc """
   Handles WHIP (WebRTC-HTTP ingestion protocol) and WHEP (WebRTC-HTTP egress protocol) requests.
   """
 
-  alias ExCloudflareCalls.WhipWhep.Store
-  alias ExCloudflareCore.API.Calls
+  alias CfCalls.WhipWhep.Store
+  alias CfCore.API.Calls
 
   @type session_description :: %{
     sdp: String.t(),
@@ -54,7 +54,7 @@ defmodule ExCloudflareCalls.WhipWhep.Handler do
     with {:ok, body, conn} <- read_body(conn),
          {:ok, %{"session_id" => session_id}} <- Calls.create_session(),
          {:ok, tracks_result} <- create_tracks(session_id, body) do
-      
+
       tracks = Enum.map(tracks_result["tracks"], fn track ->
         %{
           location: "remote",
@@ -84,7 +84,7 @@ defmodule ExCloudflareCalls.WhipWhep.Handler do
          {:ok, tracks} <- Store.get_tracks(live_id),
          {:ok, %{"session_id" => session_id}} <- Calls.create_session(),
          {:ok, tracks_result} <- create_tracks(session_id, body, tracks) do
-      
+
       conn
       |> put_resp_content_type("application/sdp")
       |> put_resp_header("protocol-version", "draft-ietf-wish-whep-00")
@@ -98,7 +98,7 @@ defmodule ExCloudflareCalls.WhipWhep.Handler do
         conn
         |> put_resp_header("access-control-allow-origin", "*")
         |> send_resp(404, "Live not started yet")
-      
+
       error ->
         handle_error(conn, error)
     end

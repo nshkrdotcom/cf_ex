@@ -1,4 +1,7 @@
-defmodule ExCloudflareDurable do
+defmodule CfDurable do
+  @moduledoc "Documentation for CfDurable."
+
+  # Your code here
   defmodule Room do
     @moduledoc """
     Clean abstraction of Orange's ChatRoom DO
@@ -43,7 +46,7 @@ end
 #####################################
 ####################################
 
-defmodule ExCloudflareDurable do
+defmodule CfDurable do
   @moduledoc """
     Provides helper functions for interacting with Cloudflare Durable Objects.
   """

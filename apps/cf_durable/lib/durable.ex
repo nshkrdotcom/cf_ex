@@ -1,4 +1,4 @@
-defmodule ExCloudflareDurable.Object do
+defmodule CfDurable.Object do
   @moduledoc """
   Provides a thin interface for accessing Durable Object namespaces
   """

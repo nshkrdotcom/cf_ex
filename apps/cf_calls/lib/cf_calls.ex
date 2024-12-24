@@ -1,4 +1,4 @@
-defmodule ExCloudflareCalls do
+defmodule CfCalls do
   @moduledoc """
   Comprehensive Cloudflare Calls API client that combines:
   - Basic session management (echo example)
@@ -221,13 +221,13 @@ end
 
 
 
-defmodule ExCloudflareCalls.Calls do
+defmodule CfCalls.Calls do
   @moduledoc """
   Provides the primary interface for interacting with the Cloudflare Calls API.
   """
-    alias ExCloudflareCalls.Session
-    alias ExCloudflareCalls.TURN
-  alias ExCloudflareCalls.SFU
+    alias CfCalls.Session
+    alias CfCalls.TURN
+  alias CfCalls.SFU
     require Logger
     @type session :: %{
         session_id: String.t()

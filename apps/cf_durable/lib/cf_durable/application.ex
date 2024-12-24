@@ -1,7 +1,7 @@
-defmodule ExCloudflareDurable.Application do
+defmodule CfDurable.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
-  @moduledoc false
+  @moduledoc "Application for CfDurable."
 
   use Application
 
@@ -14,7 +14,7 @@ defmodule ExCloudflareDurable.Application do
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: ExCloudflareDurable.Supervisor]
+    opts = [strategy: :one_for_one, name: CfDurable.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

@@ -1,10 +1,10 @@
-defmodule ExCloudflareCalls.WhipWhep.Store do
+defmodule CfCalls.WhipWhep.Store do
   @moduledoc """
   Manages track storage for WHIP/WHEP sessions using Cloudflare Durable Objects.
   """
 
-  alias ExCloudflareDurable.Object
-  alias ExCloudflareDurable.Storage
+  alias CfCalls.Object
+  alias CfCalls.Storage
 
   @type track_locator :: %{
     location: String.t(),

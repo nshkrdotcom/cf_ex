@@ -1,8 +1,8 @@
-defmodule ExCloudflareCoreTest do
+defmodule CfCoreTest do
   use ExUnit.Case
-  doctest ExCloudflareCore
+  doctest CfCore
 
   test "greets the world" do
-    assert ExCloudflareCore.hello() == :world
+    assert CfCore.hello() == :world
   end
 end

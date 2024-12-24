@@ -1,4 +1,4 @@
-defmodule ExCloudflareCore.Config do
+defmodule CfCore.Config do
 
 
   @moduledoc """
@@ -9,7 +9,7 @@ defmodule ExCloudflareCore.Config do
   Gets the configured Cloudflare API endpoint.
   """
   def calls_api do
-    Application.get_env(:ex_cloudflare_core, :calls_api) ||
+    Application.get_env(:cf_core, :calls_api) ||
       System.get_env("CALLS_API")
   end
 
@@ -17,7 +17,7 @@ defmodule ExCloudflareCore.Config do
   Gets the configured Cloudflare App ID.
   """
   def app_id do
-    Application.get_env(:ex_cloudflare_core, :calls_app_id) ||
+    Application.get_env(:cf_core, :calls_app_id) ||
       System.get_env("CALLS_APP_ID")
   end
 
@@ -25,7 +25,7 @@ defmodule ExCloudflareCore.Config do
   Gets the configured Cloudflare App Secret.
   """
   def app_secret do
-    Application.get_env(:ex_cloudflare_core, :calls_app_secret) ||
+    Application.get_env(:cf_core, :calls_app_secret) ||
       System.get_env("CALLS_APP_SECRET")
   end
 

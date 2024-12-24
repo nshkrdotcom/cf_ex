@@ -1,11 +1,11 @@
-defmodule ExCloudflareCalls.WhipWhep.Router do
+defmodule CfCalls.WhipWhep.Router do
   @moduledoc """
   Router for WHIP/WHEP endpoints.
   """
 
   use Plug.Router
 
-  alias ExCloudflareCalls.WhipWhep.Handler
+  alias CfCalls.WhipWhep.Handler
 
   plug :match
   plug :dispatch

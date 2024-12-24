@@ -1,9 +1,9 @@
-defmodule ExCloudflareCore.MixProject do
+defmodule CfCore.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :ex_cloudflare_core,
+      app: :cf_core,
       version: "0.1.0",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
