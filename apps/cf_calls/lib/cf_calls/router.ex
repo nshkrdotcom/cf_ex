@@ -1,8 +1,5 @@
 defmodule CfCalls.Router do
   @moduledoc """
-    Router for CfCalls API endpoints.
-    """
-  @doc """
   Router for CfCalls API endpoints.
   """
   use Plug.Router
@@ -80,7 +77,7 @@ defmodule CfCalls.Router do
 
   defp forward(conn, module, function, params \\ []) do
     with {:ok, body, conn} <- read_body(conn),
-        {:ok, response} <- apply(module, function, [body |> Map.merge(params), conn.req_headers]) do
+    {:ok, response} <- apply(module, function, [body |> Map.merge(params), conn.req_headers]) do
       conn
       |> send_resp(200, Jason.encode!(response))
     else

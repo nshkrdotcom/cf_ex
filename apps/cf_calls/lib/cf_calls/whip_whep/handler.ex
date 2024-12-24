@@ -3,9 +3,6 @@ defmodule CfCalls.WhipWhep.Handler do
   Handles WHIP (WebRTC-HTTP ingestion protocol) and WHEP (WebRTC-HTTP egress protocol) requests.
   """
 
-  @doc """
-  Handles WHIP (WebRTC-HTTP ingestion protocol) and WHEP (WebRTC-HTTP egress protocol) requests.
-  """
   alias CfCalls.WhipWhep.Store
   alias CfCore.API.Calls
 

@@ -2,9 +2,6 @@ defmodule CfCalls.Session do
   @moduledoc """
   Handles the creation and negotiation of Cloudflare Call Sessions
   """
-  @doc """
-  Handles the creation and negotiation of Cloudflare Call Sessions.
-  """
   alias CfCore.API
   alias CfCore.Config
   require Logger
@@ -22,7 +19,7 @@ defmodule CfCalls.Session do
           {:ok, %{session_id: session_id}}
         other ->
           other
-        end
+      end
   end
 
   @spec new_tracks(map(), list(map()), keyword()) ::

@@ -1,11 +1,6 @@
 defmodule CfCore.Config do
-
-  @doc """
+  @moduledoc """
   Configuration management for Cloudflare API interactions.
-  """
-
-  @doc """
-  Gets the configured Cloudflare API endpoint.
   """
   def calls_api do
     Application.get_env(:cf_core, :calls_api) ||
@@ -50,7 +45,7 @@ defmodule CfCore.Config do
     "#{calls_base_url()}#{path}"
   end
 
-    @doc """
+  @doc """
   Constructs a full API endpoint URL for sessions.
   """
   @spec session_endpoint(String.t()) :: String.t()
@@ -74,12 +69,6 @@ defmodule CfCore.Config do
     "#{calls_base_url()}/apps#{path}"
   end
 
-  ################################################################
-  ### DO WE NEED ANY OF THESE BELOW?
-
-  @enforce_keys [:base_url, :app_id, :app_token]
-  defstruct [:base_url, :app_id, :app_token]
-
   @doc """
   Creates a new configuration struct.
   """
@@ -92,15 +81,6 @@ defmodule CfCore.Config do
     }
   end
 
-  ## This was an older version, see above
-  #@doc """
-  #Constructs a full API endpoint URL.
-  #"""
-  #@spec endpoint(t(), String.t()) :: String.t()
-  #def endpoint(%__MODULE__{base_url: base_url, app_id: app_id}, path) do
-  #  "#{base_url}/v1/apps/#{app_id}#{path}"
-  #end
-
   @doc """
   Returns standard headers for API requests.
   """
@@ -108,8 +88,5 @@ defmodule CfCore.Config do
   def headers(%__MODULE__{app_token: app_token}) do
      [{'Authorization', "Bearer #{app_token}"}, {'Content-Type', 'application/json'}]
   end
-
-
-
 
 end

@@ -2,15 +2,12 @@ defmodule CfCalls.SFU do
   @moduledoc """
   Manages Application interactions.
   """
-  @doc """
-  Manages Application interactions.
-  """
   alias CfCore.API
   alias CfCore.Config
   require Logger
 
   @spec create_app(map(), list(map())) ::
-      {:ok, map()} | {:error, String.t()}
+    {:ok, map()} | {:error, String.t()}
   def create_app(body, headers) do
     API.request(:post, Config.app_endpoint(""), headers, body)
   end

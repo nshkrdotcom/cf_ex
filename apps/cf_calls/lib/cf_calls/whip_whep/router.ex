@@ -2,9 +2,6 @@ defmodule CfCalls.WhipWhep.Router do
   @moduledoc """
   Router for WHIP/WHEP endpoints.
   """
-  @doc """
-  Router for WHIP/WHEP endpoints.
-  """
   use Plug.Router
 
   alias CfCalls.WhipWhep.Handler

@@ -1,11 +1,4 @@
 defmodule CfCalls do
-  @doc """
-  Comprehensive Cloudflare Calls API client that combines:
-  - Basic session management (echo example)
-  - WebRTC relay (openai example)
-  - WHIP/WHEP protocols (whip-whep example)
-  - Data channels (echo-datachannels example)
-  """
   @moduledoc """
   Comprehensive Cloudflare Calls API client that combines:
   - Basic session management (echo example)
@@ -122,9 +115,8 @@ defmodule CfCalls do
     # WHEP Playback
     def create_playback(live_id, tracks, config) do
       with {:ok, session} <- Session.new_session(config),
-           {:ok, _} <- Session.new_tracks(session, %{
-             tracks: tracks
-           }) do
+      {:ok, _} <- Session.new_tracks(session, %{
+      tracks: tracks}) do
         {:ok, session}
       end
     end
@@ -225,94 +217,97 @@ defmodule CfCalls.Calls do
   @moduledoc """
   Provides the primary interface for interacting with the Cloudflare Calls API.
   """
-    alias CfCalls.Session
-    alias CfCalls.TURN
+  alias CfCalls.Session
+  alias CfCalls.TURN
   alias CfCalls.SFU
-    require Logger
-    @type session :: %{
-        session_id: String.t()
-      }
+
+  require Logger
+
+  @type session :: %{
+    session_id: String.t()
+  }
+
   @spec new_session(String.t(), String.t(), keyword) ::
-      {:ok, session} | {:error, String.t()}
+    {:ok, session} | {:error, String.t()}
   def new_session(app_id, app_token, opts \\ []) do
-      Session.new_session(app_id, app_token, opts)
+    Session.new_session(app_id, app_token, opts)
   end
 
   @spec new_tracks(String.t(), String.t(), list(map()), keyword()) ::
-      {:ok, map()} | {:error, String.t()}
+    {:ok, map()} | {:error, String.t()}
   def new_tracks(session_id, app_id, tracks, opts \\ []) do
-      Session.new_tracks(session_id, app_id, tracks, opts)
-    end
+    Session.new_tracks(session_id, app_id, tracks, opts)
+  end
 
   @spec renegotiate(String.t(), String.t(), String.t(), String.t(), keyword()) ::
-          {:ok, map()} | {:error, String.t()}
+    {:ok, map()} | {:error, String.t()}
   def renegotiate(session_id, app_id, sdp, type, opts \\ []) do
-      Session.renegotiate(session_id, app_id, sdp, type, opts)
+    Session.renegotiate(session_id, app_id, sdp, type, opts)
   end
 
   @spec close_track(String.t(), String.t(), list(map()), keyword()) ::
-      {:ok, map()} | {:error, String.t()}
+    {:ok, map()} | {:error, String.t()}
   def close_track(session_id, app_id, tracks, opts \\ []) do
-      Session.close_track(session_id, app_id, tracks, opts)
+    Session.close_track(session_id, app_id, tracks, opts)
   end
 
   @spec create_turn_key(String.t(), String.t(), keyword) ::
-      {:ok, map()} | {:error, String.t()}
+    {:ok, map()} | {:error, String.t()}
   def create_turn_key(app_id, app_token, opts \\ []) do
-   TURN.create_turn_key(app_id, app_token, opts)
-   end
+    TURN.create_turn_key(app_id, app_token, opts)
+  end
 
-    @spec get_turn_key(String.t(), String.t(), keyword) ::
-      {:ok, map()} | {:error, String.t()}
-   def get_turn_key(app_id, app_token, key_id, opts \\ []) do
+  @spec get_turn_key(String.t(), String.t(), keyword) ::
+    {:ok, map()} | {:error, String.t()}
+  def get_turn_key(app_id, app_token, key_id, opts \\ []) do
     TURN.get_turn_key(app_id, app_token, key_id, opts)
   end
 
-     @spec list_turn_keys(String.t(), String.t(), keyword) ::
-        {:ok, map()} | {:error, String.t()}
-   def list_turn_keys(app_id, app_token, opts \\ []) do
+  @spec list_turn_keys(String.t(), String.t(), keyword) ::
+    {:ok, map()} | {:error, String.t()}
+  def list_turn_keys(app_id, app_token, opts \\ []) do
     TURN.list_turn_keys(app_id, app_token, opts)
   end
 
-      @spec edit_turn_key(String.t(), String.t(), String.t(), keyword) ::
+  @spec edit_turn_key(String.t(), String.t(), String.t(), keyword) ::
+    {:ok, map()} | {:error, String.t()}
+  def edit_turn_key(app_id, app_token, key_id, opts \\ []) do
+    TURN.edit_turn_key(app_id, app_token, key_id, opts)
+  end
+
+  @spec delete_turn_key(String.t(), String.t(), String.t(), keyword) ::
+    {:ok, map()} | {:error, String.t()}
+  def delete_turn_key(app_id, app_token, key_id, opts \\ []) do
+    TURN.delete_turn_key(app_id, app_token, key_id, opts)
+  end
+
+  @spec edit_app(String.t(), String.t(), String.t(), keyword) ::
+    {:ok, map()} | {:error, String.t()}
+  def edit_app(app_id, app_token, body, opts \\ []) do
+    SFU.edit_app(app_id, app_token, body, opts)
+  end
+
+  @spec get_app(String.t(), String.t(), keyword) ::
+    {:ok, map()} | {:error, String.t()}
+  def get_app(app_id, app_token, opts \\ []) do
+    SFU.get_app(app_id, app_token, opts)
+  end
+
+  @spec delete_app(String.t(), String.t(), keyword) ::
+    {:ok, map()} | {:error, String.t()}
+  def delete_app(app_id, app_token, opts \\ []) do
+      SFU.delete_app(app_id, app_token, opts)
+  end
+
+  @spec list_apps(String.t(), String.t(), keyword) ::
+    {:ok, map()} | {:error, String.t()}
+  def list_apps(app_id, app_token, opts \\ []) do
+    SFU.list_apps(app_id, app_token, opts)
+  end
+
+  @spec create_app(String.t(), String.t(), map(), keyword) ::
       {:ok, map()} | {:error, String.t()}
-     def edit_turn_key(app_id, app_token, key_id, opts \\ []) do
-      TURN.edit_turn_key(app_id, app_token, key_id, opts)
-    end
-
-       @spec delete_turn_key(String.t(), String.t(), String.t(), keyword) ::
-        {:ok, map()} | {:error, String.t()}
-    def delete_turn_key(app_id, app_token, key_id, opts \\ []) do
-      TURN.delete_turn_key(app_id, app_token, key_id, opts)
-    end
-
-     @spec edit_app(String.t(), String.t(), String.t(), keyword) ::
-      {:ok, map()} | {:error, String.t()}
-    def edit_app(app_id, app_token, body, opts \\ []) do
-      SFU.edit_app(app_id, app_token, body, opts)
-    end
-
-     @spec get_app(String.t(), String.t(), keyword) ::
-       {:ok, map()} | {:error, String.t()}
-   def get_app(app_id, app_token, opts \\ []) do
-      SFU.get_app(app_id, app_token, opts)
-    end
-
-       @spec delete_app(String.t(), String.t(), keyword) ::
-      {:ok, map()} | {:error, String.t()}
-     def delete_app(app_id, app_token, opts \\ []) do
-        SFU.delete_app(app_id, app_token, opts)
-    end
-
-      @spec list_apps(String.t(), String.t(), keyword) ::
-      {:ok, map()} | {:error, String.t()}
-     def list_apps(app_id, app_token, opts \\ []) do
-        SFU.list_apps(app_id, app_token, opts)
-    end
-
-      @spec create_app(String.t(), String.t(), map(), keyword) ::
-        {:ok, map()} | {:error, String.t()}
-   def create_app(app_id, app_token, body, opts \\ []) do
-      SFU.create_app(app_id, app_token, body, opts)
-    end
+  def create_app(app_id, app_token, body, opts \\ []) do
+    SFU.create_app(app_id, app_token, body, opts)
+  end
 end
