@@ -1,6 +1,8 @@
 defmodule CfEx.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/nshkrdotcom/cf_ex"
+
   def project do
     [
       apps_path: "apps",
@@ -8,6 +10,7 @@ defmodule CfEx.MixProject do
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      package: package(),
       # Include support files
       test_paths: ["test/support", "apps/*/test"],
       preferred_cli_env: [
@@ -26,6 +29,13 @@ defmodule CfEx.MixProject do
   defp deps do
     [
       {:stream_data, "~> 0.7", only: :test}
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      links: %{"GitHub" => @source_url}
     ]
   end
 end
