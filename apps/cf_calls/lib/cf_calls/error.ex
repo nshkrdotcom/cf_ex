@@ -4,10 +4,10 @@ defmodule CfCalls.Error do
   """
 
   @type t :: %__MODULE__{
-    status_code: integer() | nil,
-    error: String.t(),
-    details: map() | nil
-  }
+          status_code: integer() | nil,
+          error: String.t(),
+          details: map() | nil
+        }
 
   defstruct [:status_code, :error, :details]
 

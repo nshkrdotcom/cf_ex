@@ -2,6 +2,23 @@ defmodule CfCore.Config do
   @moduledoc """
   Configuration management for Cloudflare API interactions.
   """
+
+  defstruct [
+    :base_url,
+    :app_id,
+    :app_token,
+    :turn_key_id,
+    :turn_api_token
+  ]
+
+  @type t :: %__MODULE__{
+          base_url: String.t(),
+          app_id: String.t(),
+          app_token: String.t(),
+          turn_key_id: String.t(),
+          turn_api_token: String.t()
+        }
+
   def calls_api do
     Application.get_env(:cf_core, :calls_api) ||
       System.get_env("CALLS_API")
@@ -86,31 +103,6 @@ defmodule CfCore.Config do
   """
   @spec headers(t()) :: list({String.t(), String.t()})
   def headers(%__MODULE__{app_token: app_token}) do
-    [{~c"Authorization", "Bearer #{app_token}"}, {~c"Content-Type", ~c"application/json"}]
+    [{"Authorization", "Bearer #{app_token}"}, {"Content-Type", "application/json"}]
   end
-
-
-
-
-
-
-
-
-  ### for turn
-  @type t :: %__MODULE__{
-    base_url: String.t(),
-    app_id: String.t(),
-    app_token: String.t(),
-    turn_key_id: String.t(),
-    turn_api_token: String.t()
-  }
-
-  defstruct [
-    :base_url,
-    :app_id,
-    :app_token,
-    :turn_key_id,
-    :turn_api_token
-  ]
-
 end

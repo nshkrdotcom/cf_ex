@@ -78,16 +78,16 @@ defmodule CfCalls.Session do
   @type track_name :: String.t()
 
   @type session_description :: %{
-    type: String.t(),
-    sdp: sdp()
-  }
+          required(:type) => String.t(),
+          required(:sdp) => sdp()
+        }
 
   @type track_response :: %{
-    track_name: track_name(),
-    mid: String.t(),
-    optional(:error_code) => String.t(),
-    optional(:error_description) => String.t()
-  }
+          required(:track_name) => track_name(),
+          required(:mid) => String.t(),
+          optional(:error_code) => String.t(),
+          optional(:error_description) => String.t()
+        }
 
   @doc """
   Creates a new Cloudflare Calls session.
@@ -96,7 +96,8 @@ defmodule CfCalls.Session do
   """
   @spec new(Config.t()) :: {:ok, session_id()} | {:error, term()}
   def new(config) do
-    API.request("POST",
+    API.request(
+      "POST",
       "#{config.base_url}/#{config.app_id}/sessions/new",
       [
         {"Authorization", "Bearer #{config.app_token}"},
@@ -117,16 +118,18 @@ defmodule CfCalls.Session do
     * `:tracks` - List of track locators to add
   """
   @spec create_tracks(Config.t(), session_id(), session_description(), keyword()) ::
-    {:ok, %{tracks: [track_response()], session_description: session_description()}} |
-    {:error, term()}
+          {:ok, %{tracks: [track_response()], session_description: session_description()}}
+          | {:error, term()}
   def create_tracks(config, session_id, session_description, opts \\ []) do
-    body = %{
-      sessionDescription: session_description,
-      autoDiscover: Keyword.get(opts, :auto_discover, true)
-    }
-    |> maybe_add_tracks(Keyword.get(opts, :tracks))
+    body =
+      %{
+        sessionDescription: session_description,
+        autoDiscover: Keyword.get(opts, :auto_discover, true)
+      }
+      |> maybe_add_tracks(Keyword.get(opts, :tracks))
 
-    API.request("POST",
+    API.request(
+      "POST",
       "#{config.base_url}/#{config.app_id}/sessions/#{session_id}/tracks/new",
       [
         {"Authorization", "Bearer #{config.app_token}"},
@@ -140,9 +143,10 @@ defmodule CfCalls.Session do
   Updates an existing session with a new SDP answer during renegotiation.
   """
   @spec renegotiate(Config.t(), session_id(), session_description()) ::
-    {:ok, map()} | {:error, term()}
+          {:ok, map()} | {:error, term()}
   def renegotiate(config, session_id, session_description) do
-    API.request("PUT",
+    API.request(
+      "PUT",
       "#{config.base_url}/#{config.app_id}/sessions/#{session_id}/renegotiate",
       [
         {"Authorization", "Bearer #{config.app_token}"},

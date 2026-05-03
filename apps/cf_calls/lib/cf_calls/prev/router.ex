@@ -34,8 +34,8 @@ defmodule CfCalls.Router do
     forward(conn, SFU, :create_app)
   end
 
-  get "/apps" do
-    forward(conn, SFU, :get_app)
+  get "/apps/:app_id" do
+    forward(conn, SFU, :get_app, app_id: conn.params["app_id"])
   end
 
   delete "/apps/:app_id" do

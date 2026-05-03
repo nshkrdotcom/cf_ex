@@ -11,13 +11,16 @@ defmodule CfEx.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      # Include support files
-      test_paths: ["test/support", "apps/*/test"],
-      preferred_cli_env: [
+      extra_applications: [:logger, :observer]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
         test: :test,
         "test.coverage": :test
-      ],
-      extra_applications: [:logger, :observer]
+      ]
     ]
   end
 
@@ -27,9 +30,7 @@ defmodule CfEx.MixProject do
   #
   # Run "mix help deps" for examples and options.
   defp deps do
-    [
-      {:stream_data, "~> 0.7", only: :test}
-    ]
+    []
   end
 
   defp package do

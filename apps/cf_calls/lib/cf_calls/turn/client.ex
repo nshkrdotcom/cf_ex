@@ -12,7 +12,8 @@ defmodule CfCalls.Turn.Client do
   alias CfCore.API
   alias CfCore.Config
 
-  @default_ttl 86400  # 24 hours
+  # 24 hours
+  @default_ttl 86400
 
   @ice_servers [
     "stun:stun.cloudflare.com:3478",
@@ -22,18 +23,19 @@ defmodule CfCalls.Turn.Client do
   ]
 
   @type credentials_response :: %{
-    ice_servers: [String.t()],
-    username: String.t(),
-    credential: String.t()
-  }
+          ice_servers: [String.t()],
+          username: String.t(),
+          credential: String.t()
+        }
 
   @doc """
   Generates TURN credentials with specified TTL.
   """
   @spec generate_credentials(Config.t(), pos_integer()) ::
-    {:ok, credentials_response()} | {:error, term()}
+          {:ok, credentials_response()} | {:error, term()}
   def generate_credentials(config, ttl \\ @default_ttl) do
-    API.request("POST",
+    API.request(
+      "POST",
       "#{config.base_url}/turn/keys/#{config.turn_key_id}/credentials/generate",
       [
         {"Authorization", "Bearer #{config.turn_api_token}"},
@@ -48,10 +50,11 @@ defmodule CfCalls.Turn.Client do
   """
   @spec revoke_credentials(Config.t(), String.t()) :: :ok | {:error, term()}
   def revoke_credentials(config, username) do
-    case API.request("POST",
-      "#{config.base_url}/turn/keys/#{config.turn_key_id}/credentials/#{username}/revoke",
-      [{"Authorization", "Bearer #{config.turn_api_token}"}]
-    ) do
+    case API.request(
+           "POST",
+           "#{config.base_url}/turn/keys/#{config.turn_key_id}/credentials/#{username}/revoke",
+           [{"Authorization", "Bearer #{config.turn_api_token}"}]
+         ) do
       {:ok, _} -> :ok
       error -> error
     end

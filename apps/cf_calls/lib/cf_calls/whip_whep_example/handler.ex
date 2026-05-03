@@ -5,6 +5,7 @@ defmodule CfCalls.WhipWhep.Handler do
 
   alias CfCalls.WhipWhep.Store
   alias CfCore.API.Calls
+  import Plug.Conn
 
   @type session_description :: %{
           sdp: String.t(),
@@ -138,7 +139,7 @@ defmodule CfCalls.WhipWhep.Handler do
     Calls.create_tracks(session_id, body)
   end
 
-  defp handle_error(conn, error) do
+  defp handle_error(conn, _error) do
     # Log error and return appropriate response
     send_resp(conn, 500, "Internal Server Error")
   end

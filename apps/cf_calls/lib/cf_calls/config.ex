@@ -4,9 +4,9 @@ defmodule CfCalls.Config do
   """
 
   @type t :: %__MODULE__{
-    app_id: String.t(),
-    app_token: String.t()
-  }
+          app_id: String.t(),
+          app_token: String.t()
+        }
 
   defstruct [:app_id, :app_token]
 

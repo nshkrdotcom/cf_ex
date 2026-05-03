@@ -7,26 +7,26 @@ defmodule CfCalls.WhipWhep.Types do
   alias CfCalls.Types
 
   @type whip_response :: %{
-    sdp: Types.sdp(),
-    session_id: Types.session_id(),
-    location: String.t(),
-    etag: String.t()
-  }
+          sdp: Types.sdp(),
+          session_id: Types.session_id(),
+          location: String.t(),
+          etag: String.t()
+        }
 
   @type whep_response :: %{
-    sdp: Types.sdp(),
-    session_id: Types.session_id(),
-    location: String.t(),
-    etag: String.t()
-  }
+          sdp: Types.sdp(),
+          session_id: Types.session_id(),
+          location: String.t(),
+          etag: String.t()
+        }
 
   @type http_headers :: %{
-    required(:content_type) => String.t(),
-    required(:protocol_version) => String.t(),
-    optional(:etag) => String.t(),
-    optional(:location) => String.t(),
-    optional(:link) => String.t()
-  }
+          required(:content_type) => String.t(),
+          required(:protocol_version) => String.t(),
+          optional(:etag) => String.t(),
+          optional(:location) => String.t(),
+          optional(:link) => String.t()
+        }
 
   @whip_protocol_version "draft-ietf-wish-whip-06"
   @whep_protocol_version "draft-ietf-wish-whep-00"

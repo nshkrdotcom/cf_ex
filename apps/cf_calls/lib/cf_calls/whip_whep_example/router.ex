@@ -11,32 +11,32 @@ defmodule CfCalls.WhipWhep.Router do
 
   # WHIP endpoints
   options "/ingest/:live_id" do
-    Handler.handle_whip(conn, params)
+    Handler.handle_whip(conn, %{"live_id" => live_id})
   end
 
   post "/ingest/:live_id" do
-    Handler.handle_whip(conn, params)
+    Handler.handle_whip(conn, %{"live_id" => live_id})
   end
 
   delete "/ingest/:live_id" do
-    Handler.handle_whip(conn, params)
+    Handler.handle_whip(conn, %{"live_id" => live_id})
   end
 
   # WHEP endpoints
   options "/play/:live_id" do
-    Handler.handle_whep(conn, params)
+    Handler.handle_whep(conn, %{"live_id" => live_id, "session_id" => ""})
   end
 
   post "/play/:live_id" do
-    Handler.handle_whep(conn, params)
+    Handler.handle_whep(conn, %{"live_id" => live_id, "session_id" => ""})
   end
 
   patch "/play/:live_id/:session_id" do
-    Handler.handle_whep(conn, params)
+    Handler.handle_whep(conn, %{"live_id" => live_id, "session_id" => session_id})
   end
 
   delete "/play/:live_id/:session_id" do
-    Handler.handle_whep(conn, params)
+    Handler.handle_whep(conn, %{"live_id" => live_id, "session_id" => session_id})
   end
 
   match _ do
