@@ -24,12 +24,30 @@ defmodule CfDurableAuthorityGuardTest do
              CfDurable.Object.get_namespace(
                %{
                  binding_ref: "binding/live-store",
-                 object_ref: "object/live-stream"
+                 object_ref: "object/live-stream",
+                 target_ref: "target://tenant-1/durable-object/live-store",
+                 attach_grant_ref: "attach-grant://tenant-1/durable-object/live-store",
+                 target_auth_posture_ref: "target-posture://tenant-1/durable-object/live-store"
                },
                governed_authority: %{authority_ref: "authority/cloudflare"}
              )
 
     assert String.contains?(message, "not materialized")
+  end
+
+  test "governed Durable Object authority requires target attach refs" do
+    assert {:error, message} =
+             CfDurable.Object.get_namespace(
+               %{
+                 binding_ref: "binding/live-store",
+                 object_ref: "object/live-stream"
+               },
+               governed_authority: %{authority_ref: "authority/cloudflare"}
+             )
+
+    assert String.contains?(message, "target_ref")
+    assert String.contains?(message, "attach_grant_ref")
+    assert String.contains?(message, "target_auth_posture_ref")
   end
 
   test "standalone namespace lookup preserves runtime-unavailable behavior with redacted logs" do

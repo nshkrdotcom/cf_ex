@@ -64,12 +64,33 @@ defmodule CfCoreAuthorityGuardTest do
                  authority_ref: "authority/cloudflare",
                  base_url_ref: "endpoint/cloudflare-calls",
                  app_id_ref: "calls-app/live",
-                 app_token_ref: "credential/cloudflare-calls"
+                 app_token_ref: "credential/cloudflare-calls",
+                 target_ref: "target://tenant-1/cloudflare-calls/session",
+                 attach_grant_ref: "attach-grant://tenant-1/cloudflare-calls/session",
+                 target_auth_posture_ref: "target-posture://tenant-1/cloudflare-calls/session"
                }
              )
 
     assert authority.authority_ref == "authority/cloudflare"
     assert authority.app_token_ref == "credential/cloudflare-calls"
+    assert authority.target_ref == "target://tenant-1/cloudflare-calls/session"
+    assert authority.attach_grant_ref == "attach-grant://tenant-1/cloudflare-calls/session"
+  end
+
+  test "governed calls authority requires target attach refs" do
+    assert {:error, error} =
+             CfCore.AuthorityGuard.validate_calls_authority(
+               governed_authority: %{
+                 authority_ref: "authority/cloudflare",
+                 base_url_ref: "endpoint/cloudflare-calls",
+                 app_id_ref: "calls-app/live",
+                 app_token_ref: "credential/cloudflare-calls"
+               }
+             )
+
+    assert :target_ref in error.missing_refs
+    assert :attach_grant_ref in error.missing_refs
+    assert :target_auth_posture_ref in error.missing_refs
   end
 
   test "governed core client rejects raw API config before provider IO" do
@@ -79,7 +100,10 @@ defmodule CfCoreAuthorityGuardTest do
           authority_ref: "authority/cloudflare",
           base_url_ref: "endpoint/cloudflare-calls",
           app_id_ref: "calls-app/live",
-          app_token_ref: "credential/cloudflare-calls"
+          app_token_ref: "credential/cloudflare-calls",
+          target_ref: "target://tenant-1/cloudflare-calls/session",
+          attach_grant_ref: "attach-grant://tenant-1/cloudflare-calls/session",
+          target_auth_posture_ref: "target-posture://tenant-1/cloudflare-calls/session"
         },
         redaction_values: ["env-secret-token", "https://env.invalid"]
       )

@@ -35,7 +35,10 @@ defmodule CfCore.AuthorityGuard do
     :authority_ref,
     :base_url_ref,
     :app_id_ref,
-    :app_token_ref
+    :app_token_ref,
+    :target_ref,
+    :attach_grant_ref,
+    :target_auth_posture_ref
   ]
 
   @doc """
@@ -99,7 +102,9 @@ defmodule CfCore.AuthorityGuard do
          app_token_ref: get_field(authority, :app_token_ref),
          turn_key_ref: get_field(authority, :turn_key_ref),
          turn_token_ref: get_field(authority, :turn_token_ref),
-         target_ref: get_field(authority, :target_ref)
+         target_ref: get_field(authority, :target_ref),
+         attach_grant_ref: get_field(authority, :attach_grant_ref),
+         target_auth_posture_ref: get_field(authority, :target_auth_posture_ref)
        }}
     else
       {:error, build_error(scope, blocked, missing)}

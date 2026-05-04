@@ -26,7 +26,10 @@ defmodule CfCallsPropertiesTest do
           authority_ref: "authority/cloudflare",
           base_url_ref: "endpoint/cloudflare-calls",
           app_id_ref: "calls-app/live",
-          app_token_ref: "credential/cloudflare-calls"
+          app_token_ref: "credential/cloudflare-calls",
+          target_ref: "target://tenant-1/cloudflare-calls/session",
+          attach_grant_ref: "attach-grant://tenant-1/cloudflare-calls/session",
+          target_auth_posture_ref: "target-posture://tenant-1/cloudflare-calls/session"
         },
         redaction_values: ["env-secret-token"]
       )

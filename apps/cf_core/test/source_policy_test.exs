@@ -56,8 +56,14 @@ defmodule CfCoreSourcePolicyTest do
     relative = Path.relative_to(path, @repo_root)
 
     String.starts_with?(relative, "deps/") or
+      String.contains?(relative, "/deps/") or
+      String.ends_with?(relative, "/deps") or
       String.starts_with?(relative, "_build/") or
-      String.starts_with?(relative, "doc/")
+      String.contains?(relative, "/_build/") or
+      String.ends_with?(relative, "/_build") or
+      String.starts_with?(relative, "doc/") or
+      String.contains?(relative, "/doc/") or
+      String.ends_with?(relative, "/doc")
   end
 
   defp denied_tokens do
@@ -88,12 +94,12 @@ defmodule CfCoreSourcePolicyTest do
 
   defp dynamic_atom_tokens do
     [
-      "String" <> ".to_atom",
-      "String" <> ".to_existing_atom",
-      "binary" <> "_to_atom",
-      "binary" <> "_to_existing_atom",
-      "list" <> "_to_atom",
-      "list" <> "_to_existing_atom",
+      "String" <> ".to_" <> "atom",
+      "String" <> ".to_" <> "existing_" <> "atom",
+      "binary" <> "_to_" <> "atom",
+      "binary" <> "_to_" <> "existing_" <> "atom",
+      "list" <> "_to_" <> "atom",
+      "list" <> "_to_" <> "existing_" <> "atom",
       <<58>> <> "#" <> "{",
       <<58>> <> <<34>> <> "#" <> "{",
       <<58>> <> <<34>>

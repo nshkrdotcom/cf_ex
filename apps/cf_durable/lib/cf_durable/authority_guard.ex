@@ -9,7 +9,13 @@ defmodule CfDurable.AuthorityGuard do
   end
 
   @raw_fields [:binding_name, :object_id, :deployment_env, :workspace_secret, :target_credential]
-  @required_refs [:authority_ref, :binding_ref]
+  @required_refs [
+    :authority_ref,
+    :binding_ref,
+    :target_ref,
+    :attach_grant_ref,
+    :target_auth_posture_ref
+  ]
 
   @spec validate_namespace(term(), term(), keyword()) :: {:ok, map()} | {:error, Error.t()}
   def validate_namespace(name_or_refs, object_id, opts) do
@@ -42,7 +48,13 @@ defmodule CfDurable.AuthorityGuard do
        %{
          authority_ref: get_field(authority, :authority_ref),
          binding_ref: get_field(refs, :binding_ref) || get_field(authority, :binding_ref),
-         object_ref: get_field(refs, :object_ref) || get_field(authority, :object_ref)
+         object_ref: get_field(refs, :object_ref) || get_field(authority, :object_ref),
+         target_ref: get_field(refs, :target_ref) || get_field(authority, :target_ref),
+         attach_grant_ref:
+           get_field(refs, :attach_grant_ref) || get_field(authority, :attach_grant_ref),
+         target_auth_posture_ref:
+           get_field(refs, :target_auth_posture_ref) ||
+             get_field(authority, :target_auth_posture_ref)
        }}
     else
       {:error, build_error(blocked, missing)}
