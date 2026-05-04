@@ -34,12 +34,16 @@ CopyInsert
 # In your endpoint.ex
 plug ExCloudflareCalls.WhipWhep.Router, at: "/"
 ```
-Configure the necessary environment variables:
+Configure standalone values explicitly at the application boundary:
 Code
 CopyInsert
 ```
 config :ex_cloudflare_calls,
-  calls_api: System.get_env("CALLS_API"),
-  calls_app_id: System.get_env("CALLS_APP_ID"),
-  calls_app_secret: System.get_env("CALLS_APP_SECRET")
+  calls_api: "https://rtc.live.cloudflare.com",
+  calls_app_id: "calls-app-id",
+  calls_app_secret: "calls-app-token"
 ```
+
+Governed WHIP/WHEP deployments carry refs for Calls auth, Durable Object
+bindings, deployment settings, and target grants. Raw app tokens, binding
+names, workspace secrets, or target credentials are rejected before provider IO.

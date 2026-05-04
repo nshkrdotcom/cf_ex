@@ -20,18 +20,44 @@ defmodule CfCoreSourcePolicyTest do
   end
 
   defp source_files do
-    [
-      "mix.exs",
-      "apps/*/mix.exs",
-      "apps/*/lib/**/*.ex",
-      "apps/*/test/**/*.ex",
-      "apps/*/test/**/*.exs"
-    ]
-    |> Enum.flat_map(&Path.wildcard(Path.join(@repo_root, &1)))
-    |> Enum.reject(&String.contains?(&1, "/deps/"))
-    |> Enum.reject(&String.contains?(&1, "/_build/"))
-    |> Enum.reject(&String.contains?(&1, "/doc/"))
+    @repo_root
+    |> list_files()
+    |> Enum.filter(&source_path?/1)
     |> Enum.sort()
+  end
+
+  defp list_files(root) do
+    root
+    |> File.ls!()
+    |> Enum.flat_map(fn entry ->
+      path = Path.join(root, entry)
+
+      cond do
+        excluded_path?(path) -> []
+        File.dir?(path) -> list_files(path)
+        File.regular?(path) -> [path]
+        true -> []
+      end
+    end)
+  end
+
+  defp source_path?(path) do
+    relative = Path.relative_to(path, @repo_root)
+
+    relative == "mix.exs" or
+      (String.starts_with?(relative, "apps/") and String.ends_with?(relative, "/mix.exs")) or
+      (String.starts_with?(relative, "apps/") and String.contains?(relative, "/lib/") and
+         String.ends_with?(relative, ".ex")) or
+      (String.starts_with?(relative, "apps/") and String.contains?(relative, "/test/") and
+         (String.ends_with?(relative, ".ex") or String.ends_with?(relative, ".exs")))
+  end
+
+  defp excluded_path?(path) do
+    relative = Path.relative_to(path, @repo_root)
+
+    String.starts_with?(relative, "deps/") or
+      String.starts_with?(relative, "_build/") or
+      String.starts_with?(relative, "doc/")
   end
 
   defp denied_tokens do
@@ -55,7 +81,8 @@ defmodule CfCoreSourcePolicyTest do
       "re" <> ".findall",
       "re" <> ".finditer",
       "from " <> "re" <> " import",
-      "import " <> "re"
+      "import " <> "re",
+      "Path" <> "." <> "wildcard"
     ]
   end
 

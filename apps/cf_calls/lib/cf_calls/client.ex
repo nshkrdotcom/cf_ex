@@ -75,33 +75,39 @@ defmodule CfCalls.Client do
   end
 
   def request(method, path, config, body \\ nil) do
-    url = "#{@base_url}/#{path}"
+    with :ok <- CfCore.AuthorityGuard.validate_config(config) do
+      url = "#{@base_url}/#{path}"
 
-    headers = [
-      {"Authorization", "Bearer #{config.app_token}"},
-      {"Content-Type", "application/json"}
-    ]
+      headers = [
+        {"Authorization", "Bearer #{config.app_token}"},
+        {"Content-Type", "application/json"}
+      ]
 
-    req_body = if body, do: Jason.encode!(body), else: ""
+      req_body = if body, do: Jason.encode!(body), else: ""
+      redaction_values = Map.get(config, :redaction_values, [])
 
-    case HTTPoison.request(method, url, req_body, headers) do
-      {:ok, %{status_code: status, body: resp_body}} when status in 200..299 ->
-        {:ok, Jason.decode!(resp_body)}
+      case HTTPoison.request(method, url, req_body, headers) do
+        {:ok, %{status_code: status, body: resp_body}} when status in 200..299 ->
+          {:ok, Jason.decode!(resp_body)}
 
-      {:ok, %{status_code: status, body: resp_body}} ->
-        {:error,
-         %{
-           status_code: status,
-           error: "API request failed",
-           details: Jason.decode!(resp_body)
-         }}
+        {:ok, %{status_code: status, body: resp_body}} ->
+          {:error,
+           %{
+             status_code: status,
+             error: "API request failed",
+             details:
+               resp_body
+               |> Jason.decode!()
+               |> CfCore.Redaction.redact(redaction_values)
+           }}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error,
-         %{
-           error: "HTTP request failed",
-           reason: reason
-         }}
+        {:error, %HTTPoison.Error{reason: reason}} ->
+          {:error,
+           %{
+             error: "HTTP request failed",
+             reason: CfCore.Redaction.redact(reason, redaction_values)
+           }}
+      end
     end
   end
 end

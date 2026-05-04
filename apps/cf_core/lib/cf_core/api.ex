@@ -51,6 +51,7 @@ defmodule CfCore.API do
   def request(method, url, headers, body \\ %{}, opts \\ []) do
     with {:ok, method} <- normalize_method(method) do
       start_time = System.monotonic_time()
+      {redaction_values, request_opts} = Keyword.pop(opts, :redaction_values, [])
 
       metadata = %{
         method: method,
@@ -62,7 +63,7 @@ defmodule CfCore.API do
         @telemetry_prefix ++ [:request],
         metadata,
         fn ->
-          do_request(method, url, headers, body, opts, 0)
+          do_request(method, url, headers, body, request_opts, redaction_values, 0)
         end
       )
     end
@@ -93,7 +94,7 @@ defmodule CfCore.API do
     end
   end
 
-  defp do_request(method, url, headers, body, opts, retry_count)
+  defp do_request(method, url, headers, body, opts, redaction_values, retry_count)
        when retry_count < @max_retries do
     encoded_body = Jason.encode!(body)
 
@@ -105,13 +106,13 @@ defmodule CfCore.API do
              encoded_body,
              [recv_timeout: 30_000, pool: :cf_api_pool] ++ opts
            ),
-         {:ok, _status, resp_body} <- handle_response(response) do
+         {:ok, _status, resp_body} <- handle_response(response, redaction_values) do
       {:ok, resp_body}
     else
       {:error, :rate_limit} ->
         backoff = calculate_backoff(retry_count)
         Process.sleep(backoff)
-        do_request(method, url, headers, body, opts, retry_count + 1)
+        do_request(method, url, headers, body, opts, redaction_values, retry_count + 1)
 
       {:error, %Error{} = error} ->
         {:error, error}
@@ -121,12 +122,12 @@ defmodule CfCore.API do
          %Error{
            type: :network,
            message: "Request failed",
-           context: %{reason: reason}
+           context: %{reason: CfCore.Redaction.redact(reason, redaction_values)}
          }}
     end
   end
 
-  defp do_request(_method, _url, _headers, _body, _opts, retry_count) do
+  defp do_request(_method, _url, _headers, _body, _opts, _redaction_values, retry_count) do
     {:error,
      %Error{
        type: :rate_limit,
@@ -135,7 +136,7 @@ defmodule CfCore.API do
      }}
   end
 
-  defp handle_response(%{status_code: status, body: body} = response) do
+  defp handle_response(%{status_code: status, body: body} = response, redaction_values) do
     case status do
       200..299 ->
         case Jason.decode(body) do
@@ -143,13 +144,16 @@ defmodule CfCore.API do
             {:ok, status, json}
 
           {:error, reason} ->
-            Logger.error("JSON Decoding error", error: inspect(reason), body: body)
+            Logger.error("JSON Decoding error",
+              error: inspect(CfCore.Redaction.redact(reason, redaction_values)),
+              body: CfCore.Redaction.redact(body, redaction_values)
+            )
 
             {:error,
              %Error{
                type: :json,
                message: "JSON decoding failed",
-               context: %{reason: reason}
+               context: %{reason: CfCore.Redaction.redact(reason, redaction_values)}
              }}
         end
 
@@ -160,7 +164,7 @@ defmodule CfCore.API do
       _ ->
         Logger.error("HTTP error",
           status: status,
-          body: body,
+          body: CfCore.Redaction.redact(body, redaction_values),
           url: response.request_url
         )
 
@@ -170,7 +174,7 @@ defmodule CfCore.API do
            message: "HTTP request failed",
            context: %{
              status: status,
-             body: body
+             body: CfCore.Redaction.redact(body, redaction_values)
            }
          }}
     end

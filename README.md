@@ -19,6 +19,36 @@ def deps do
     {:cf_durable, "~> 0.1.0"}
   ]
 end
+```
+
+## Authority and configuration
+
+Standalone callers pass Cloudflare values explicitly into config structs:
+
+```elixir
+config =
+  CfCore.Config.new(
+    "https://rtc.live.cloudflare.com/v1",
+    "calls-app-id",
+    "calls-app-token"
+  )
+```
+
+`CfCore.Config.standalone/0` keeps the legacy local application and OS config
+fallback for development compatibility only. Governed runtime paths must carry
+authority refs and are rejected if raw Cloudflare API endpoints, app ids,
+tokens, Durable Object binding names, workspace secrets, deployment settings,
+or target credentials are supplied as authority.
+
+Durable Object governed mode accepts refs only and fails closed until an
+authority materializer supplies a scoped binding:
+
+```elixir
+CfDurable.Object.get_namespace(
+  %{binding_ref: "binding/live-store", object_ref: "object/live-stream"},
+  governed_authority: %{authority_ref: "authority/cloudflare"}
+)
+```
 
 ## License
 
@@ -103,7 +133,10 @@ Your project is set up as an Elixir umbrella application, which is excellent for
 
 **Key Points to Consider:**
 - **Dependencies Management:** Ensure all applications have the necessary dependencies listed in their respective mix.exs files. cf_core depends on httpoison for HTTP requests and jason for JSON handling, which should be reflected in cf_calls and cf_durable if they use these libraries indirectly or directly.
-- **Configuration:** Your applications use environment variables for sensitive information like API keys. Make sure these are set in your development environment or use a configuration file (like config/config.exs) for non-sensitive configurations.
+- **Configuration:** Applications should pass explicit config structs at the
+  standalone boundary. Governed runtime paths use authority refs and reject
+  raw endpoints, ids, tokens, bindings, workspace secrets, and target
+  credentials.
 
 **Testing:**
 You've implemented property-based tests using StreamData, which is great for ensuring robustness. Remember to mock external API calls for tests to avoid rate limiting and to make tests faster and more reliable. Libraries like Mox or Mock can help with this.
@@ -116,7 +149,10 @@ You've implemented property-based tests using StreamData, which is great for ens
 - **Complete Documentation:** Update all README.md files with comprehensive documentation.
 - **CI/CD Setup:** Consider setting up a CI pipeline with GitHub Actions to automate tests, formatting, and potentially deployment.
 - **Integration Testing:** While you have good unit and property-based tests, think about integration tests that check how these applications work together.
-- **Security:** Since you're dealing with APIs, consider security aspects like proper authentication, rate limiting, and handling of sensitive data.
+- **Security:** Since you're dealing with APIs, keep authentication material at
+  the standalone boundary or behind governed authority refs. Runtime errors and
+  receipts should use the fixed-literal redaction helpers before exposing
+  provider or deployment values.
 - **Code Review:** If possible, have someone else review your code for potential improvements or issues you might have missed.
 - **Publishing:** Once you're confident in your libraries, consider publishing them to Hex.pm for wider use or to make dependency management easier for other projects.
 

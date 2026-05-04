@@ -39,3 +39,7 @@ Note: TURN key management is part of Cloudflare's API but handled separately fro
 - Edit TURN key: PUT /accounts/{account_id}/calls/turn_keys/{key_id}
 
 These endpoints are account-level operations, not app-level like the main Calls API.
+
+In governed mode TURN key ids and TURN API tokens are carried as refs from the
+authority materializer. Raw TURN tokens, workspace secrets, deployment values,
+or target credentials are not accepted as governed authority.

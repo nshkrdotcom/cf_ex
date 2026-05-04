@@ -51,3 +51,26 @@ The **`Object` module** serves as the entry point to interact with DO namespaces
 The **`Storage` module** has a clean functional API for reading/writing to the Durable Object's storage.
 
 The goal here is to separate the responsibility for interacting with the Durable Objects from higher-level features, offering only the low-level APIs for using DO functionality. These operations are stateless, which is why no supervision tree is created in this module. This design pattern also supports reuse and extensibility of the module, allowing other higher level packages to integrate with it, without requiring a specific implementation. This allows for the core module to stay light-weight and focused on its core concerns.
+
+## Authority contract
+
+Standalone calls may still resolve a Cloudflare runtime binding by name:
+
+```elixir
+CfDurable.Object.get_namespace("LIVE_STORE", "stream-id")
+```
+
+Governed calls must carry refs and fail closed until the selected authority
+materializer provides a scoped binding:
+
+```elixir
+CfDurable.Object.get_namespace(
+  %{binding_ref: "binding/live-store", object_ref: "object/stream"},
+  governed_authority: %{authority_ref: "authority/cloudflare"}
+)
+```
+
+Raw binding names, object ids, deployment settings, workspace secrets, storage
+authority, alarm authority, and target credentials are rejected in governed
+mode. Runtime errors use fixed-literal redaction before logs or receipts expose
+provider or deployment values.

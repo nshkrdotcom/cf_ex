@@ -60,3 +60,15 @@ The key idea is that this module **does not have any high-level logic, nor busin
 
 The `cf_core` package is **not an application**. Therefore it will not start a supervision tree, and will rely on the calling application to manage concurrent requests through other methods.
 This design aims to create a minimal layer on top of HTTP requests.
+
+## Authority contract
+
+Standalone callers pass explicit Cloudflare endpoints, app ids, and tokens to
+`CfCore.Config.new/4`. `CfCore.Config.standalone/0` is retained only as a local
+compatibility boundary for application and OS config fallback.
+
+Governed callers must provide refs through `:governed_authority`. Raw
+endpoints, app ids, app tokens, TURN tokens, headers, workspace secrets, and
+target credentials are rejected before provider IO. Error contexts and receipt
+maps should pass through `CfCore.Redaction.redact/2` with known protected
+values before they are logged or returned.

@@ -8,17 +8,24 @@ defmodule CfCore.Config do
     :app_id,
     :app_token,
     :turn_key_id,
-    :turn_api_token
+    :turn_api_token,
+    :governed_authority,
+    redaction_values: []
   ]
 
   @type t :: %__MODULE__{
-          base_url: String.t(),
-          app_id: String.t(),
-          app_token: String.t(),
-          turn_key_id: String.t(),
-          turn_api_token: String.t()
+          base_url: String.t() | nil,
+          app_id: String.t() | nil,
+          app_token: String.t() | nil,
+          turn_key_id: String.t() | nil,
+          turn_api_token: String.t() | nil,
+          governed_authority: map() | keyword() | nil,
+          redaction_values: [String.t()]
         }
 
+  @doc """
+  Gets the standalone Calls API base endpoint from application or OS config.
+  """
   def calls_api do
     Application.get_env(:cf_core, :calls_api) ||
       System.get_env("CALLS_API")
@@ -89,13 +96,31 @@ defmodule CfCore.Config do
   @doc """
   Creates a new configuration struct.
   """
-  @spec new(String.t(), String.t(), String.t()) :: __MODULE__.t()
-  def new(base_url, app_id, app_token) do
+  @spec new(String.t(), String.t(), String.t(), keyword()) :: __MODULE__.t()
+  def new(base_url, app_id, app_token, opts \\ []) do
     %__MODULE__{
       base_url: base_url,
       app_id: app_id,
-      app_token: app_token
+      app_token: app_token,
+      governed_authority: Keyword.get(opts, :governed_authority),
+      redaction_values: Keyword.get(opts, :redaction_values, [])
     }
+  end
+
+  @doc """
+  Builds a standalone config from application or OS config.
+  """
+  @spec standalone() :: __MODULE__.t()
+  def standalone do
+    new(calls_api(), app_id(), app_secret())
+  end
+
+  @doc """
+  Validates governed authority refs for this config.
+  """
+  @spec validate_governed(t()) :: :ok | {:error, CfCore.AuthorityGuard.Error.t()}
+  def validate_governed(%__MODULE__{} = config) do
+    CfCore.AuthorityGuard.validate_config(config)
   end
 
   @doc """

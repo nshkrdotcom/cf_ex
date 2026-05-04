@@ -26,10 +26,24 @@ be found at <https://hexdocs.pm/cf_calls>.
 
 ```elixir
 config = CfCalls.Config.new(
-  System.get_env("CALLS_API"),
-  System.get_env("CALLS_APP_ID"),
-  System.get_env("CALLS_APP_SECRET")
+  "calls-app-id",
+  "calls-app-token"
 )
+```
+
+This is standalone configuration. Governed callers carry authority refs and do
+not provide raw app ids or tokens:
+
+```elixir
+governed_config =
+  CfCalls.Config.new(nil, nil,
+    governed_authority: %{
+      authority_ref: "authority/cloudflare",
+      base_url_ref: "endpoint/cloudflare-calls",
+      app_id_ref: "calls-app/live",
+      app_token_ref: "credential/cloudflare-calls"
+    }
+  )
 ```
 
 ### Sessions and Tracks
@@ -133,6 +147,11 @@ The  **`SFU Module`**   will provide utilities for manipulating Cloudflare SFU s
  The **`SDP Module`** is a stateless utility that contains all functions related to SDP manipulation (currently just Opus DTX).
 
 The primary design consideration here is to separate the low-level details about making http requests to a module (`cf_core`) to avoid having to reimplement the same logic in each of the modules here, while still being able to make granular changes at the Cloudflare calls level. Note that this module is stateless and does not have a supervision tree associated with it because it doesn't handle a lifecycle of a long running process.
+
+Governed request paths validate config before provider IO. If a governed config
+contains raw endpoints, app ids, provider tokens, headers, workspace secrets, or
+target credentials, the request fails closed and redacts known protected values
+from returned errors.
 
 
 ## TODO:

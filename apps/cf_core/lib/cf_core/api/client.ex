@@ -12,20 +12,27 @@ defmodule CfCore.API.Client do
   """
   @spec post(String.t(), map() | String.t()) :: response()
   def post(endpoint, body) do
-    url = Path.join(Config.calls_base_url(), endpoint)
-    headers = Config.auth_headers() ++ [{"Content-Type", "application/json"}]
+    post(Config.standalone(), endpoint, body)
+  end
 
-    body = if is_map(body), do: Jason.encode!(body), else: body
+  @spec post(Config.t(), String.t(), map() | String.t()) :: response()
+  def post(config, endpoint, body) do
+    with :ok <- Config.validate_governed(config) do
+      url = Path.join(config.base_url || Config.calls_base_url(), endpoint)
+      headers = Config.headers(config) ++ [{"Content-Type", "application/json"}]
 
-    case HTTPoison.post(url, body, headers) do
-      {:ok, %{status_code: status, body: resp_body}} when status in 200..299 ->
-        {:ok, Jason.decode!(resp_body)}
+      body = if is_map(body), do: Jason.encode!(body), else: body
 
-      {:ok, %{status_code: status, body: resp_body}} ->
-        {:error, {status, resp_body}}
+      case HTTPoison.post(url, body, headers) do
+        {:ok, %{status_code: status, body: resp_body}} when status in 200..299 ->
+          {:ok, Jason.decode!(resp_body)}
 
-      {:error, reason} ->
-        {:error, reason}
+        {:ok, %{status_code: status, body: resp_body}} ->
+          {:error, {status, CfCore.Redaction.redact(resp_body, config.redaction_values)}}
+
+        {:error, reason} ->
+          {:error, CfCore.Redaction.redact(reason, config.redaction_values)}
+      end
     end
   end
 
@@ -34,18 +41,25 @@ defmodule CfCore.API.Client do
   """
   @spec put(String.t(), map()) :: response()
   def put(endpoint, body) do
-    url = Path.join(Config.calls_base_url(), endpoint)
-    headers = Config.auth_headers() ++ [{"Content-Type", "application/json"}]
+    put(Config.standalone(), endpoint, body)
+  end
 
-    case HTTPoison.put(url, Jason.encode!(body), headers) do
-      {:ok, %{status_code: status, body: resp_body}} when status in 200..299 ->
-        {:ok, Jason.decode!(resp_body)}
+  @spec put(Config.t(), String.t(), map()) :: response()
+  def put(config, endpoint, body) do
+    with :ok <- Config.validate_governed(config) do
+      url = Path.join(config.base_url || Config.calls_base_url(), endpoint)
+      headers = Config.headers(config) ++ [{"Content-Type", "application/json"}]
 
-      {:ok, %{status_code: status, body: resp_body}} ->
-        {:error, {status, resp_body}}
+      case HTTPoison.put(url, Jason.encode!(body), headers) do
+        {:ok, %{status_code: status, body: resp_body}} when status in 200..299 ->
+          {:ok, Jason.decode!(resp_body)}
 
-      {:error, reason} ->
-        {:error, reason}
+        {:ok, %{status_code: status, body: resp_body}} ->
+          {:error, {status, CfCore.Redaction.redact(resp_body, config.redaction_values)}}
+
+        {:error, reason} ->
+          {:error, CfCore.Redaction.redact(reason, config.redaction_values)}
+      end
     end
   end
 
@@ -54,18 +68,25 @@ defmodule CfCore.API.Client do
   """
   @spec delete(String.t()) :: response()
   def delete(endpoint) do
-    url = Path.join(Config.calls_base_url(), endpoint)
-    headers = Config.auth_headers()
+    delete(Config.standalone(), endpoint)
+  end
 
-    case HTTPoison.delete(url, headers) do
-      {:ok, %{status_code: status}} when status in 200..299 ->
-        {:ok, nil}
+  @spec delete(Config.t(), String.t()) :: response()
+  def delete(config, endpoint) do
+    with :ok <- Config.validate_governed(config) do
+      url = Path.join(config.base_url || Config.calls_base_url(), endpoint)
+      headers = Config.headers(config)
 
-      {:ok, %{status_code: status, body: resp_body}} ->
-        {:error, {status, resp_body}}
+      case HTTPoison.delete(url, headers) do
+        {:ok, %{status_code: status}} when status in 200..299 ->
+          {:ok, nil}
 
-      {:error, reason} ->
-        {:error, reason}
+        {:ok, %{status_code: status, body: resp_body}} ->
+          {:error, {status, CfCore.Redaction.redact(resp_body, config.redaction_values)}}
+
+        {:error, reason} ->
+          {:error, CfCore.Redaction.redact(reason, config.redaction_values)}
+      end
     end
   end
 end
