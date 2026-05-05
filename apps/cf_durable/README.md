@@ -74,3 +74,7 @@ Raw binding names, object ids, deployment settings, workspace secrets, storage
 authority, alarm authority, and target credentials are rejected in governed
 mode. Runtime errors use fixed-literal redaction before logs or receipts expose
 provider or deployment values.
+
+Runtime dispatch is bounded by `CfDurable.RuntimePolicy`. Public calls into the
+Cloudflare runtime accept only the source-owned Durable Object operations used
+by this package and reject unknown function atoms before runtime dispatch.

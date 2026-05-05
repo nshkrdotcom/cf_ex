@@ -100,6 +100,7 @@ defmodule CfCoreSourcePolicyTest do
       "binary" <> "_to_" <> "existing_" <> "atom",
       "list" <> "_to_" <> "atom",
       "list" <> "_to_" <> "existing_" <> "atom",
+      "Module" <> "." <> "concat",
       <<58>> <> "#" <> "{",
       <<58>> <> <<34>> <> "#" <> "{",
       <<58>> <> <<34>>
